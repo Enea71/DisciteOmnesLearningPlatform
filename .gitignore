@@ -13,3 +13,12 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Ignore Firebase config
+google-services.json
+
+# Ignore Android signing keys
+*.jks
+*.keystore
+
+# Ignore local Gradle properties (where you might store keystore passwords)
+gradle.properties

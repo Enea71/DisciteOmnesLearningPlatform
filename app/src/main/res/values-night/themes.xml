@@ -1,21 +1,23 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.DisciteOmnesLearningPlatform" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="shapeAppearanceSmallComponent">@style/FABShapeCircular</item>
 
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
+        <item name="colorPrimary">@color/button_purple</item>
         <item name="colorOnPrimary">@color/black</item>
 
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondary">@color/gray</item>
         <item name="colorOnSecondary">@color/black</item>
 
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimary</item>
-
         <!-- Material 3 container colors -->
-        <item name="colorSecondaryContainer">@color/purple_200</item>
-        <item name="colorOnSecondaryContainer">@color/black</item>
+        <item name="colorSecondaryContainer">@color/button_purple</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+
+        <item name="containerBgTint">@color/pastel_purple</item>
+        <item name="buttonColor">@color/button_purple</item>
+
+        <item name="alert_options_color">@color/white</item>
+
     </style>
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-        <style name="FABShapeCircular" parent="">
-            <item name="cornerSize">50%</item>
-    </style>
+    <attr name="buttonColor" format="color" />
+    <attr name="containerBgTint" format="color" />
+    <attr name="alert_options_color" format="color"/>
 </resources>

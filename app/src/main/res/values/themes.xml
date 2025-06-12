@@ -1,26 +1,29 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme -->
+
     <style name="Theme.DisciteOmnesLearningPlatform" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/olive_green</item>
+        <item name="colorPrimaryVariant">@color/sage_green</item>
+        <item name="colorOnPrimary">@color/sage_green</item>
 
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/green</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/olive_green</item>
         <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
+
+        <!-- Material 3 container colors (optional if you're using M3 components) -->
+        <item name="colorSecondaryContainer">@color/white</item>
+        <item name="colorOnSecondaryContainer">@color/black</item>
+
+        <item name="containerBgTint">@color/pastel_green</item>
+        <item name="buttonColor">@color/olive_green</item>
+
+        <item name="alert_options_color">@color/black</item>
+
     </style>
-
-    <style name="Theme.DisciteOmnesLearningPlatform.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="Theme.DisciteOmnesLearningPlatform.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
-
-    <style name="Theme.DisciteOmnesLearningPlatform.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <!--
+    FAB uses colorSecondaryContainer
+    Login page uses Primary
+    Nav tab uses Primary
+-->
 </resources>
