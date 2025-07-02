@@ -6,6 +6,7 @@ const fetch = require('node-fetch');   // npm i node-fetch@2
 const bodyParser = require('body-parser');
 const cors       = require('cors');
 const serviceAccount = require('./serviceAccountKey.json');
+require('dotenv').config();
 
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 if (!FIREBASE_API_KEY) {
@@ -32,9 +33,8 @@ app.use(bodyParser.json());
  */
 app.post('/register', async (req, res) => {
   const { email, password, username } = req.body;
-  // Basic validation
-  if (!email || !password || password.length < 6 || !username) {
-    return res.status(400).json({ error: 'Missing or invalid fields' });
+  if (!username) {
+    return res.status(400).json({ error: 'Username required' });
   }
 
   try {
@@ -54,7 +54,8 @@ app.post('/register', async (req, res) => {
     res.json({
       uid: userRecord.uid,
       email: userRecord.email,
-      username: userRecord.displayName
+      username: userRecord.displayName,
+      idToken : userRecord.idToken
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -85,12 +86,14 @@ app.post('/login', async (req, res) => {
     if (data.error) {
       return res.status(401).json({ error: data.error.message });
     }
-    // data.idToken, data.refreshToken, data.localId (uid), expiresIn
+    // data.idToken, data.refreshToken, data.localId (uid), expiresIn, username
     res.json({
-      idToken:    data.idToken,
+      idToken:      data.idToken,
       refreshToken: data.refreshToken,
-      uid:        data.localId,
-      expiresIn:  data.expiresIn
+      uid:          data.localId,
+      expiresIn:    data.expiresIn,
+      username:     data.displayName,
+      email:        data.email       
     });
   } catch (error) {
     console.error("ERROR U MORON :", error);
@@ -110,7 +113,9 @@ async function authenticate(req, res, next) {
   const idToken = auth.split(' ')[1];
   try {
     const decoded = await admin.auth().verifyIdToken(idToken);
-    req.uid = decoded.uid;const options = {
+    req.uid = decoded.uid;
+    req.email = decoded.email;
+    const options = {
       key:  fs.readFileSync(__dirname + '/ssl/key.pem'),
       cert: fs.readFileSync(__dirname + '/ssl/cert.pem')
     };
@@ -133,8 +138,15 @@ app.get('/users/:uid', authenticate, async (req, res) => {
     if (!snap.exists) {
       return res.status(404).json({ error: 'Profile not found' });
     }
-    res.json(snap.data());
+    const profile = snap.data();
+
+    return res.json({
+      email:    req.email,        
+      username: profile.username, 
+    });
+
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err.message });
   }
 });

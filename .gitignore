@@ -30,3 +30,4 @@ cert.pem
 .cert.pem
 express/node_modules
 express/serviceAccountKey.json
+express/.env

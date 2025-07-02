@@ -4,7 +4,9 @@ import static androidx.appcompat.app.AlertDialog.*;
 
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -13,6 +15,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.google.android.material.navigation.NavigationView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.navigation.NavController;
@@ -28,17 +31,23 @@ import com.example.disciteomneslearningplatform.databinding.ActivityMainBinding;
 import java.util.HashMap;
 import java.util.Map;
 
+import API.ApiClient;
+import API.ApiService;
+import API.UserAPI;
+
+
 public class MainActivity extends AppCompatActivity {
-    // Get the current user’s UID
 
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
-
-
+    private AuthRepository repo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Initialize Retrofit and ApiService
+        ApiService api = ApiClient.getApiClient().create(ApiService.class);
+        repo = new AuthRepository(api, MainActivity.this);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
 
@@ -62,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-        //populateNavHeader(navigationView);
+        populateNavHeader(navigationView);
     }
 
     @Override
@@ -71,7 +80,11 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
     public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.sign_out){
+            doLogout();
+        }
         if (item.getItemId() == R.id.action_settings) {
             String[] options = {"Profile", "Notifications", "Logout"};
 
@@ -82,13 +95,12 @@ public class MainActivity extends AppCompatActivity {
                             // Handle item click
                             switch (i) {
                                 case 0:
-                                    // Open Profile
                                     break;
                                 case 1:
                                     // Open Notifications
                                     break;
                                 case 2:
-                                    // Perform Logout
+                                    //sadas
                                     break;
                             }
                         }
@@ -102,6 +114,14 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    void doLogout(){
+        Toast.makeText(this, "Goodbye, " +  repo.getUsername() , Toast.LENGTH_LONG).show();
+        repo.logout();
+        Intent i = new Intent(this, LoginActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
+        finish();
+    }
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
@@ -160,39 +180,14 @@ public class MainActivity extends AppCompatActivity {
 
         dialog.show();
     }
-    private void populateNavHeader(NavigationView navView) {
-        // 1) fetch the header container
-        View header = navView.getHeaderView(0);
 
-        // 2) find the views inside that header
+   */
+    private void populateNavHeader(NavigationView navView) {
+        // fetch the header container
+        View header = navView.getHeaderView(0);
         TextView tvUsername = header.findViewById(R.id.username);
         TextView tvEmail    = header.findViewById(R.id.email_address);
-
-        // 3) get the current user
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            DocumentReference profileRef = db
-                    .collection("Username")
-                    .document(uid);
-            profileRef.get()
-                    .addOnSuccessListener(snapshot -> {
-                        if (snapshot.exists()) {
-                            String username = snapshot.getString("username");
-                            tvUsername.setText(username);
-                        } else {
-                            Toast.makeText(this,
-                                    "Error loading profile: ",
-                                    Toast.LENGTH_LONG).show();                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this,
-                                "Error loading profile: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                    });
-
-            tvEmail   .setText(user.getEmail());
-        }
+        tvUsername.setText(repo.getUsername());
+        tvEmail.setText(repo.getEmail());
     }
-
-*/
 }
