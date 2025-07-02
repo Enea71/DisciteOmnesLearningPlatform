@@ -2,7 +2,6 @@ package com.example.disciteomneslearningplatform;
 
 import static androidx.appcompat.app.AlertDialog.*;
 
-import static com.google.firebase.firestore.FirestoreKt.firestore;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -24,21 +23,14 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.disciteomneslearningplatform.databinding.ActivityMainBinding;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
+
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     // Get the current user’s UID
-    private String uid = FirebaseAuth.getInstance()
-            .getCurrentUser()
-            .getUid();
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
@@ -55,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         DrawerLayout drawer = binding.drawerLayout;
 
         binding.appBarMain.rightButton.setOnClickListener(view ->{
-            showOverlayDialog();
+        //    showOverlayDialog();
         });
 
         NavigationView navigationView = binding.navView;
@@ -70,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-        populateNavHeader(navigationView);
+        //populateNavHeader(navigationView);
     }
 
     @Override
@@ -116,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+    /*
     private void showOverlayDialog() {
         // Inflate the form layout
         View overlay = getLayoutInflater()
@@ -201,5 +194,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+*/
 }

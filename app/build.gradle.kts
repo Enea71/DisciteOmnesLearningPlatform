@@ -36,10 +36,11 @@ android {
 }
 
 dependencies {
-    implementation(libs.firebase.auth)
-    //implementation(libs.firebase.analytics)
-    implementation(libs.firebase.firestore)
-    //implementation(libs.firebase.appcheck.debug)
+
+
+    //REST
+    implementation(libs.retrofit)
+    implementation(libs.converterGson)
 
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -49,6 +50,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.annotation)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
