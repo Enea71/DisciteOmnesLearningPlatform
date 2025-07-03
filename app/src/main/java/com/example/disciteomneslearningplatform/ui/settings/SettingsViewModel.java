@@ -25,4 +25,14 @@ public class SettingsViewModel extends AndroidViewModel {
         String uid    = repo.getUid();
         repo.changePassword(bearer, uid, new UserAPI.ChangePasswordRequest(newPw), cb);
     }
+    public void changeUsername(String newUn, AuthRepository.ResultCallback<Void> cb) {
+        String bearer = "Bearer " + repo.getIdToken();
+        String uid    = repo.getUid();
+        repo.changeUsername(bearer, uid, new UserAPI.ChangeUsernameRequest(newUn), cb);
+    }
+    public void deleteUser(AuthRepository.ResultCallback<Void> cb) {
+        String bearer = "Bearer " + repo.getIdToken();
+        String uid    = repo.getUid();
+        repo.deleteUser(bearer, uid, cb);
+    }
 }

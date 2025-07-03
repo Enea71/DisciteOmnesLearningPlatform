@@ -6,6 +6,7 @@ import static android.content.Context.MODE_PRIVATE;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.PixelCopy;
 
 import API.ApiService;
 import API.UserAPI;
@@ -44,6 +45,12 @@ public class AuthRepository {
                 .putString(KEY_TOKEN,    token)
                 .putString(KEY_UID,      uid)
                 .putString(KEY_EMAIL,    email)
+                .putString(KEY_USERNAME, username)
+                .apply();
+    }
+    public void updateUsername(String username) {
+        this.username = username;
+        prefs.edit()
                 .putString(KEY_USERNAME, username)
                 .apply();
     }
@@ -126,6 +133,41 @@ public class AuthRepository {
                         }
                     }
 
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        cb.onError("Network error: " + t.getMessage());
+                    }
+                });
+    }
+    public void changeUsername(String bearer, String uid, UserAPI.ChangeUsernameRequest req, ResultCallback cb) {
+        api.changeUsername(bearer, uid, req)
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> resp) {
+                        if (resp.isSuccessful()) {
+                            cb.onSuccess(resp.body());
+                        } else {
+                            cb.onError("Failed: " + resp.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        cb.onError("Network error: " + t.getMessage());
+                    }
+                });
+    }
+    public void deleteUser(String bearer, String uid, ResultCallback cb){
+        api.deleteUser(bearer,uid)
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> resp) {
+                        if (resp.isSuccessful()) {
+                            cb.onSuccess(null);  // no data to pass
+                        } else {
+                            cb.onError("Failed to delete: HTTP " + resp.code());
+                        }
+                    }
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
                         cb.onError("Network error: " + t.getMessage());

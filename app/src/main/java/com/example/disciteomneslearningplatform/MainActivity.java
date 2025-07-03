@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
+    NavigationView navigationView;
     private AuthRepository repo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         //    showOverlayDialog();
         });
 
-        NavigationView navigationView = binding.navView;
+         navigationView = binding.navView;
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
         hideFab(navController);
-        populateNavHeader(navigationView);
+        populateNavHeader();
     }
 
     @Override
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    void doLogout(){
+    public void doLogout(){
         Toast.makeText(this, "Goodbye, " +  repo.getUsername() , Toast.LENGTH_LONG).show();
         repo.logout();
         Intent i = new Intent(this, LoginActivity.class);
@@ -178,9 +179,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void populateNavHeader(NavigationView navView) {
+    public void refreshNavHeader(){
+        populateNavHeader();
+    }
+    private void populateNavHeader() {
         // fetch the header container
-        View header = navView.getHeaderView(0);
+        View header = navigationView.getHeaderView(0);
         TextView tvUsername = header.findViewById(R.id.username);
         TextView tvEmail    = header.findViewById(R.id.email_address);
         tvUsername.setText(repo.getUsername());

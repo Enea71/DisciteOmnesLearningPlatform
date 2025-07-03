@@ -92,5 +92,16 @@ public class UserAPI {
         }
         public String getNewPassword() { return newPassword; }
     }
+    public static class ChangeUsernameRequest {
+        private final String newUsername;
+        public ChangeUsernameRequest(String newUsername) {
+            this.newUsername = newUsername;
+        }
+        public String getNewUsername() { return newUsername; }
+    }
+    public static class DeleteUserRequest {
+
+
+    }
 
 }

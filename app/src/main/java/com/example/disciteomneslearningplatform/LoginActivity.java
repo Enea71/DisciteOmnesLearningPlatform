@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -16,8 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.Group;
 
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
-import com.example.disciteomneslearningplatform.ui.DialogUtil;
-
+import com.example.disciteomneslearningplatform.ui.AlertDialogButtons;
 
 import API.ApiClient;
 import API.ApiService;
@@ -43,11 +41,11 @@ public class LoginActivity extends AppCompatActivity {
             loadingBar  = findViewById(R.id.loading);
             formGroup   = findViewById(R.id.form_group);
 
-            // 2) REPO initialisation
+            // REPO initialisation
             ApiService api = ApiClient.getApiClient().create(ApiService.class);
             repo = new AuthRepository(api, LoginActivity.this);
 
-            // 3) Button Functionality
+            // Button Functionality
             loginButton.setOnClickListener(v -> checkCredentials());
         }
 
@@ -106,6 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                     .create();
             dialog.setCanceledOnTouchOutside(false);
             dialog.show();
+            AlertDialogButtons.formatButtons(this,dialog, R.attr.alert_options_color);
         }
 
         private void doRegister(String email, String pass, String username) {

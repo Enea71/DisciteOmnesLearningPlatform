@@ -108,9 +108,79 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+/**
+ * POST /users/:uid/username
+ * Body: { newUsername }
+ * → Updates Auth username
+ */
+
+app.post(
+  '/users/:uid/username',
+  authenticate,
+  async (req, res) => {
+    if (req.uid !== req.params.uid) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const { newUsername } = req.body;
+
+    const cleanUsername = newUsername.trim();
+    try {
+      // 1) Update Auth displayName
+      await admin.auth().updateUser(req.uid, {
+        displayName: cleanUsername
+      });
+
+      // 2) Update Firestore profile document
+      await db.collection('users')
+              .doc(req.uid)
+              .set({ username: cleanUsername }, { merge: true });
+
+      return res.json({ success: true });
+    } catch (err) {
+      console.error('Username change failed', err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
+/**
+ * DELETE /users/:uid/removeUser
+ * → Deletes both the Auth user and their Firestore profile
+ */
+app.delete(
+  '/users/:uid/removeUser',
+  authenticate,  // verify Bearer token and populate req.uid
+  async (req, res) => {
+    const { uid } = req.params;
+
+    // 1) Make sure the caller owns this account
+    if (req.uid !== uid) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    try {
+      // 2) Delete from Firebase Auth
+      await admin.auth().deleteUser(uid);
+
+      // 3) Delete the Firestore profile document
+      await db.collection('users').doc(uid).delete();
+
+      // 4) Respond with 204 No Content (or 200 with a body)
+      return res.status(204).end();
+    } catch (err) {
+      console.error('Error deleting user', err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
+/**
+ * POST /users/:uid/password
+ * Body: { newPassword }
+ * → Updates Auth user password
+ */
+
 app.post(
   '/users/:uid/password',
-  authenticate,       // populates req.uid from the Bearer token
+  authenticate,      
   async (req, res) => {
     if (req.uid !== req.params.uid) {
       return res.status(403).json({ error: 'Forbidden' });
