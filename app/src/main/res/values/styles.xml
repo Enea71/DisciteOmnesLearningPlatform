@@ -3,4 +3,5 @@
     <attr name="buttonColor" format="color" />
     <attr name="containerBgTint" format="color" />
     <attr name="alert_options_color" format="color"/>
+    <attr name="delete_acc_color" format="color"/>
 </resources>

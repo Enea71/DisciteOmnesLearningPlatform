@@ -28,4 +28,11 @@ public interface ApiService {
             @Path("uid") String uid,
             @Body UserAPI.UserProfile profile
     );
+    @POST("users/{uid}/password")
+    Call<Void> changePassword(
+            @Header("Authorization") String bearer,
+            @Path("uid") String uid,
+            @Body UserAPI.ChangePasswordRequest body
+    );
+
 }

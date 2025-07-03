@@ -1,9 +1,11 @@
 package com.example.disciteomneslearningplatform.data.model;
 
+import static android.content.ContentValues.TAG;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import API.ApiService;
 import API.UserAPI;
@@ -112,6 +114,25 @@ public class AuthRepository {
                     }
                 });
     }
+    public void changePassword(String bearer, String uid, UserAPI.ChangePasswordRequest req, ResultCallback cb) {
+        api.changePassword(bearer, uid, req)
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> resp) {
+                        if (resp.isSuccessful()) {
+                            cb.onSuccess(resp.body());
+                        } else {
+                            cb.onError("Failed: " + resp.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        cb.onError("Network error: " + t.getMessage());
+                    }
+                });
+    }
+
     public String getIdToken()  { return idToken;  }
     public String getUid()      { return uid;      }
     public String getEmail()    { return email;    }

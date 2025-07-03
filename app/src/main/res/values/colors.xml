@@ -16,4 +16,6 @@
     <color name="gray">#808080</color>
     <color name="button_purple">#4F368A</color>
     <color name="pastel_green">#C1E1C1</color>
+    <color name="dark_red">#8F0000</color>
+    <color name="red">#FF0000</color>
 </resources>

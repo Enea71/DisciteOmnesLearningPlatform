@@ -18,6 +18,7 @@
         <item name="buttonColor">@color/button_purple</item>
 
         <item name="alert_options_color">@color/white</item>
+        <item name="delete_acc_color">@color/dark_red</item>
 
     </style>
 </resources>

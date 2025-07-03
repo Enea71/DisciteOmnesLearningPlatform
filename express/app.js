@@ -8,6 +8,8 @@ const cors       = require('cors');
 const serviceAccount = require('./serviceAccountKey.json');
 require('dotenv').config();
 
+
+
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 if (!FIREBASE_API_KEY) {
   console.error('⚠️ Please set FIREBASE_API_KEY in your env');
@@ -24,6 +26,12 @@ const db = admin.firestore();
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+
+const groupsRouter = require('./groups');
+const { authenticate } = require('./middleware');
+
+app.use('/groups', groupsRouter);
+
 
 
 /**
@@ -100,31 +108,27 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+app.post(
+  '/users/:uid/password',
+  authenticate,       // populates req.uid from the Bearer token
+  async (req, res) => {
+    if (req.uid !== req.params.uid) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const { newPassword } = req.body;
+    if (typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
 
-/**
- * Middleware: checks for `Authorization: Bearer <idToken>`
- * and populates req.uid
- */
-async function authenticate(req, res, next) {
-  const auth = req.headers.authorization;
-  if (!auth?.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Missing Bearer token' });
+    try {
+      await admin.auth().updateUser(req.uid, { password: newPassword });
+      return res.json({ success: true });
+    } catch (err) {
+      console.error('Password change failed', err);
+      return res.status(500).json({ error: err.message });
+    }
   }
-  const idToken = auth.split(' ')[1];
-  try {
-    const decoded = await admin.auth().verifyIdToken(idToken);
-    req.uid = decoded.uid;
-    req.email = decoded.email;
-    const options = {
-      key:  fs.readFileSync(__dirname + '/ssl/key.pem'),
-      cert: fs.readFileSync(__dirname + '/ssl/cert.pem')
-    };
-    next();
-  } catch (err) {
-    res.status(401).json({ error: 'Invalid or expired token' });
-  }
-}
-
+);
 /**
  * GET /users/:uid
  * → Returns the Firestore profile, or 404 if none
@@ -169,6 +173,40 @@ app.put('/users/:uid', authenticate, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// PUT /users/:uid/username
+// Body: { username: "new username" }
+app.put(
+  '/users/:uid/username',
+  authenticate,
+  async (req, res) => {
+    // Ensure caller owns this account
+    if (req.uid !== req.params.uid) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    // Validate input
+    const { username } = req.body;
+    if (typeof username !== 'string' || username.trim() === '') {
+      return res.status(400).json({ error: 'username is required' });
+    }
+
+    try {
+      // Update only the username field
+      await db
+        .collection('users')
+        .doc(req.params.uid)
+        .set({ username: username.trim() }, { merge: true });
+
+      return res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+);
+
+
 const options = {
   key:  fs.readFileSync(__dirname + '/ssl/key.pem'),
   cert: fs.readFileSync(__dirname + '/ssl/cert.pem')

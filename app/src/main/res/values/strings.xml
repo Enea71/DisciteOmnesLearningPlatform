@@ -21,5 +21,8 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="action_sign_out">"Sign out"</string>
+    <string name="notifications">"Notifications"</string>
+    <string name="button_settings">"Save</string>
+    <string name="delete_acc">"Delete Account</string>
 
 </resources>

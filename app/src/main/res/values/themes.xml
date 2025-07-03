@@ -1,6 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme -->
-
     <style name="Theme.DisciteOmnesLearningPlatform" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary brand color -->
         <item name="colorPrimary">@color/olive_green</item>
@@ -19,11 +18,6 @@
         <item name="buttonColor">@color/olive_green</item>
 
         <item name="alert_options_color">@color/black</item>
-
+        <item name="delete_acc_color">@color/red</item>
     </style>
-    <!--
-    FAB uses colorSecondaryContainer
-    Login page uses Primary
-    Nav tab uses Primary
--->
 </resources>

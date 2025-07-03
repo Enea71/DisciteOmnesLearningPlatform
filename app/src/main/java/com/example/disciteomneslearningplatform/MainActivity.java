@@ -1,12 +1,8 @@
 package com.example.disciteomneslearningplatform;
 
-import static androidx.appcompat.app.AlertDialog.*;
 
-
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -16,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import androidx.appcompat.app.AlertDialog;
 import androidx.navigation.NavController;
@@ -28,12 +25,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.disciteomneslearningplatform.databinding.ActivityMainBinding;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
 import API.ApiClient;
 import API.ApiService;
-import API.UserAPI;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -71,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+        hideFab(navController);
         populateNavHeader(navigationView);
     }
 
@@ -84,32 +78,20 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==R.id.sign_out){
             doLogout();
-        }
-        if (item.getItemId() == R.id.action_settings) {
-            String[] options = {"Profile", "Notifications", "Logout"};
-
-            Builder builder = new Builder(this);
-            builder.setTitle("Settings Options")
-                    .setItems(options, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int i) {
-                            // Handle item click
-                            switch (i) {
-                                case 0:
-                                    break;
-                                case 1:
-                                    // Open Notifications
-                                    break;
-                                case 2:
-                                    //sadas
-                                    break;
-                            }
-                        }
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-
             return true;
         }
+        if(item.getItemId() == R.id.notifications) {
+            View overlay = getLayoutInflater()
+                    .inflate(R.layout.notifications, null);
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setView(overlay)
+                    .setCancelable(true)
+                    .create();
+
+
+            return true;
+
+            }
 
         return super.onOptionsItemSelected(item);
     }
@@ -128,8 +110,7 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-    /*
-    private void showOverlayDialog() {
+    private void createNewGroupOverlay() {
         // Inflate the form layout
         View overlay = getLayoutInflater()
                 .inflate(R.layout.overlay, null);
@@ -156,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 return;
             }
-
+/*
             Map<String,Object> data = new HashMap<>();
             data.put("title", title);
             data.put("description", desc);
@@ -175,13 +156,28 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this,
                                 "Save failed: " + e.getMessage(),
                                 Toast.LENGTH_LONG).show();
-                    });
+                    });*/
         });
 
         dialog.show();
     }
 
-   */
+    private void hideFab(NavController navController){
+        FloatingActionButton rightFab = findViewById(R.id.rightButton);
+        FloatingActionButton leftFab  = findViewById(R.id.leftButton);
+
+        navController.addOnDestinationChangedListener((controller, destination, args) -> {
+            boolean onSettings = destination.getId() == R.id.nav_settings;
+            if (onSettings) {
+                rightFab.hide();    // animates out and sets visibility = GONE
+                leftFab .hide();
+            } else {
+                rightFab.show();    // animates in and sets visibility = VISIBLE
+                leftFab .show();
+            }
+        });
+    }
+
     private void populateNavHeader(NavigationView navView) {
         // fetch the header container
         View header = navView.getHeaderView(0);

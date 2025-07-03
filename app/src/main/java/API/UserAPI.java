@@ -85,5 +85,12 @@ public class UserAPI {
             int  nanos;
         }
     }
+    public static class ChangePasswordRequest {
+        private final String newPassword;
+        public ChangePasswordRequest(String newPassword) {
+            this.newPassword = newPassword;
+        }
+        public String getNewPassword() { return newPassword; }
+    }
 
 }

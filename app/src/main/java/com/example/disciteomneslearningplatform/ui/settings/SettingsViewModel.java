@@ -1,16 +1,28 @@
 package com.example.disciteomneslearningplatform.ui.settings;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+import android.app.Application;
 
-public class SettingsViewModel extends ViewModel {
-    private final MutableLiveData<String> mText;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 
-    public SettingsViewModel(){
-        mText = new MutableLiveData<>();
-        mText.setValue("Settings page");
+import com.example.disciteomneslearningplatform.data.model.AuthRepository;
+
+import API.ApiClient;
+import API.ApiService;
+import API.UserAPI;
+
+public class SettingsViewModel extends AndroidViewModel {
+    private final AuthRepository repo;
+
+    public SettingsViewModel(@NonNull Application app) {
+        super(app);
+        ApiService api = ApiClient.getApiClient().create(ApiService.class);
+        repo = new AuthRepository(api, app);
     }
-    public LiveData<String> getText(){return mText;}
 
+    public void changePassword(String newPw, AuthRepository.ResultCallback<Void> cb) {
+        String bearer = "Bearer " + repo.getIdToken();
+        String uid    = repo.getUid();
+        repo.changePassword(bearer, uid, new UserAPI.ChangePasswordRequest(newPw), cb);
+    }
 }
