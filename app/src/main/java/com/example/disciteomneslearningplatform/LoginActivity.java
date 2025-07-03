@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
 
             // REPO initialisation
             ApiService api = ApiClient.getApiClient().create(ApiService.class);
-            repo = new AuthRepository(api, LoginActivity.this);
+            repo = AuthRepository.getInstance(api, LoginActivity.this);
 
             // Button Functionality
             loginButton.setOnClickListener(v -> checkCredentials());

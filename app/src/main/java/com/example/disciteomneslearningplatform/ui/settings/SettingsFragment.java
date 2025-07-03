@@ -2,6 +2,7 @@ package com.example.disciteomneslearningplatform.ui.settings;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.disciteomneslearningplatform.LoginActivity;
 import com.example.disciteomneslearningplatform.MainActivity;
 import com.example.disciteomneslearningplatform.R;
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
@@ -31,7 +33,7 @@ public class SettingsFragment extends Fragment {
         SettingsViewModel settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
 
         ApiService api = ApiClient.getApiClient().create(ApiService.class);
-        repo = new AuthRepository(api, this.requireContext());
+        repo = AuthRepository.getInstance(api, this.requireContext());
 
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -82,8 +84,9 @@ public class SettingsFragment extends Fragment {
         settingsViewModel.changeUsername(newUn, new AuthRepository.ResultCallback<Void>() {
             @Override public void onSuccess(Void unused) {
                 repo.updateUsername(newUn);
-                ((MainActivity) requireActivity()).refreshNavHeader();
+                Log.d("NewUser",repo.getUsername());
                 Toast.makeText(getContext(), "Username changed!", Toast.LENGTH_SHORT).show();
+                binding.inputUsername.getEditText().setText("");
             }
             @Override public void onError(String msg) {
                 Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
@@ -99,6 +102,7 @@ public class SettingsFragment extends Fragment {
         settingsViewModel.changePassword(newPw, new AuthRepository.ResultCallback<Void>() {
             @Override public void onSuccess(Void unused) {
                 Toast.makeText(getContext(), "Password changed!", Toast.LENGTH_SHORT).show();
+                binding.inputPassword.getEditText().setText("");
             }
             @Override public void onError(String msg) {
                 Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();

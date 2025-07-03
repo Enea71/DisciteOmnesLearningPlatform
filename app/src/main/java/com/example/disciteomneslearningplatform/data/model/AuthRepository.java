@@ -3,10 +3,15 @@ package com.example.disciteomneslearningplatform.data.model;
 import static android.content.ContentValues.TAG;
 import static android.content.Context.MODE_PRIVATE;
 
+import static okhttp3.internal.Internal.instance;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.PixelCopy;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import API.ApiService;
 import API.UserAPI;
@@ -23,6 +28,9 @@ public class AuthRepository {
     private final ApiService api;
 
     private final SharedPreferences prefs;
+    private static AuthRepository instance;
+    private static final Object LOCK = new Object();
+
 
     private String idToken, uid, email, username;
 
@@ -41,6 +49,7 @@ public class AuthRepository {
         this.uid      = uid;
         this.email    = email;
         this.username = username;
+        usernameLiveData.setValue(username);
         prefs.edit()
                 .putString(KEY_TOKEN,    token)
                 .putString(KEY_UID,      uid)
@@ -48,8 +57,17 @@ public class AuthRepository {
                 .putString(KEY_USERNAME, username)
                 .apply();
     }
+    private MutableLiveData<String> usernameLiveData = new MutableLiveData<>();
+
+    public LiveData<String> getUsernameLiveData() {
+        return usernameLiveData;
+    }
+
+
     public void updateUsername(String username) {
         this.username = username;
+        usernameLiveData.postValue(username);
+        usernameLiveData.setValue(username); // Use setValue if you're on main thread
         prefs.edit()
                 .putString(KEY_USERNAME, username)
                 .apply();
@@ -179,4 +197,14 @@ public class AuthRepository {
     public String getUid()      { return uid;      }
     public String getEmail()    { return email;    }
     public String getUsername() { return username; }
+    public static AuthRepository getInstance(ApiService api, Context context) {
+        if (instance == null) {
+            synchronized (LOCK) {
+                if (instance == null) {
+                    instance = new AuthRepository(api, context.getApplicationContext());
+                }
+            }
+        }
+        return instance;
+    }
 }

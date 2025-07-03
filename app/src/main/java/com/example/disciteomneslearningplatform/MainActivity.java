@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // Initialize Retrofit and ApiService
         ApiService api = ApiClient.getApiClient().create(ApiService.class);
-        repo = new AuthRepository(api, MainActivity.this);
+        repo = AuthRepository.getInstance(api, MainActivity.this);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
 
@@ -66,7 +66,15 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
         hideFab(navController);
-        populateNavHeader();
+        repo.getUsernameLiveData().observe(this, username -> {
+            View header = navigationView.getHeaderView(0);
+            TextView tvUsername = header.findViewById(R.id.username);
+            TextView tvEmail = header.findViewById(R.id.email_address);
+            tvUsername.setText(username);
+            tvEmail.setText(repo.getEmail());
+
+        });
+
     }
 
     @Override
@@ -93,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
 
             }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -170,24 +177,12 @@ public class MainActivity extends AppCompatActivity {
         navController.addOnDestinationChangedListener((controller, destination, args) -> {
             boolean onSettings = destination.getId() == R.id.nav_settings;
             if (onSettings) {
-                rightFab.hide();    // animates out and sets visibility = GONE
+                rightFab.hide();
                 leftFab .hide();
             } else {
-                rightFab.show();    // animates in and sets visibility = VISIBLE
+                rightFab.show();
                 leftFab .show();
             }
         });
-    }
-
-    public void refreshNavHeader(){
-        populateNavHeader();
-    }
-    private void populateNavHeader() {
-        // fetch the header container
-        View header = navigationView.getHeaderView(0);
-        TextView tvUsername = header.findViewById(R.id.username);
-        TextView tvEmail    = header.findViewById(R.id.email_address);
-        tvUsername.setText(repo.getUsername());
-        tvEmail.setText(repo.getEmail());
     }
 }
