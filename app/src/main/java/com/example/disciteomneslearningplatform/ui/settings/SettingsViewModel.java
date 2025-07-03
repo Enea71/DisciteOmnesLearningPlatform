@@ -17,7 +17,7 @@ public class SettingsViewModel extends AndroidViewModel {
     public SettingsViewModel(@NonNull Application app) {
         super(app);
         ApiService api = ApiClient.getApiClient().create(ApiService.class);
-        repo = new AuthRepository(api, app);
+        repo = AuthRepository.getInstance(api, app);
     }
 
     public void changePassword(String newPw, AuthRepository.ResultCallback<Void> cb) {

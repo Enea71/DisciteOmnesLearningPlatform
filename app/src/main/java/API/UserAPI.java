@@ -90,18 +90,14 @@ public class UserAPI {
         public ChangePasswordRequest(String newPassword) {
             this.newPassword = newPassword;
         }
-        public String getNewPassword() { return newPassword; }
+
     }
     public static class ChangeUsernameRequest {
-        private final String newUsername;
-        public ChangeUsernameRequest(String newUsername) {
-            this.newUsername = newUsername;
+        private final String username;
+        public ChangeUsernameRequest(String username) {
+            this.username = username;
         }
-        public String getNewUsername() { return newUsername; }
     }
-    public static class DeleteUserRequest {
 
-
-    }
 
 }

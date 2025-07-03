@@ -11,10 +11,10 @@ import retrofit2.http.Path;
 
 public interface ApiService {
 
-    @POST("register")
+    @POST("users/register")
     Call<UserAPI.RegisterResponse> register(@Body UserAPI.RegisterRequest req);
 
-    @POST("login")
+    @POST("users/login")
     Call<UserAPI.LoginResponse> login(@Body UserAPI.LoginRequest req);
 
     @GET("users/{uid}")
@@ -35,7 +35,7 @@ public interface ApiService {
             @Path("uid") String uid,
             @Body UserAPI.ChangePasswordRequest body
     );
-    @POST("users/{uid}/username")
+    @PUT("users/{uid}/username")
     Call<Void> changeUsername(
             @Header("Authorization") String bearer,
             @Path("uid") String uid,
@@ -45,5 +45,20 @@ public interface ApiService {
     Call<Void> deleteUser(
             @Header("Authorization") String bearer,
             @Path("uid") String uid
+    );
+    @POST("groups/create")
+    Call<GroupAPI.GroupResponse> createGroup(
+            @Header("Authorization") String bearer,
+            @Body   GroupAPI.CreateGroupRequest req
+    );
+
+    @GET("groups/member")
+    Call<GroupAPI.GroupsResponse> getMemberGroups(
+            @Header("Authorization") String bearer
+    );
+
+    @GET("groups/owner")
+    Call<GroupAPI.GroupsResponse> getOwnerGroups(
+            @Header("Authorization") String bearer
     );
 }

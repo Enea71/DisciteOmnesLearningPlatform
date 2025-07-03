@@ -3,6 +3,7 @@ package com.example.disciteomneslearningplatform;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
+import com.example.disciteomneslearningplatform.data.model.GroupRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import androidx.appcompat.app.AlertDialog;
@@ -27,6 +29,7 @@ import com.example.disciteomneslearningplatform.databinding.ActivityMainBinding;
 
 import API.ApiClient;
 import API.ApiService;
+import API.GroupAPI;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -36,12 +39,14 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     NavigationView navigationView;
     private AuthRepository repo;
+    private GroupRepository groupRepo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Initialize Retrofit and ApiService
         ApiService api = ApiClient.getApiClient().create(ApiService.class);
         repo = AuthRepository.getInstance(api, MainActivity.this);
+        groupRepo = new GroupRepository(repo);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
 
@@ -50,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         DrawerLayout drawer = binding.drawerLayout;
 
         binding.appBarMain.rightButton.setOnClickListener(view ->{
-        //    showOverlayDialog();
+            createNewGroupOverlay();
         });
 
          navigationView = binding.navView;
@@ -59,13 +64,16 @@ public class MainActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
         // adds the four lines
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow,R.id.nav_settings)
+                R.id.nav_home, R.id.nav_groups, R.id.nav_slideshow,R.id.nav_settings)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        // Set up UI
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+        // Hide FABs on Settings menu
         hideFab(navController);
+        // Observer for username
         repo.getUsernameLiveData().observe(this, username -> {
             View header = navigationView.getHeaderView(0);
             TextView tvUsername = header.findViewById(R.id.username);
@@ -128,14 +136,14 @@ public class MainActivity extends AppCompatActivity {
         EditText descInput  = overlay.findViewById(R.id.overlayDescInput);
         Button saveBtn     = overlay.findViewById(R.id.overlaySaveButton);
 
-
         // Build & show the dialog
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(overlay)
                 .setCancelable(true)
                 .create();
+        dialog.show();
 
-        // On Submit, write the form into /users/{uid}
+        // On Submit, send the REST POST to /groups/create
         saveBtn.setOnClickListener(v -> {
             String title = titleInput.getText().toString().trim();
             String desc  = descInput.getText().toString().trim();
@@ -145,29 +153,31 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 return;
             }
-/*
-            Map<String,Object> data = new HashMap<>();
-            data.put("title", title);
-            data.put("description", desc);
-            data.put("timestamp",
-                    FieldValue.serverTimestamp());
 
-            db.collection("users")
-                    .document(uid)
-                    .set(data)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this,
-                                "Saved!", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this,
-                                "Save failed: " + e.getMessage(),
-                                Toast.LENGTH_LONG).show();
-                    });*/
+            // Disable the button to prevent double-taps
+            saveBtn.setEnabled(false);
+
+            groupRepo.createGroup(title, desc, new GroupRepository.ResultCallback<GroupAPI.GroupResponse>() {
+                @Override
+                public void onSuccess(GroupAPI.GroupResponse group) {
+                    // e.g. group.id, group.name, group.description are available
+                    Toast.makeText(MainActivity.this,
+                            "Group “" + group.name + "” created!",
+                            Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    // TODO: refresh your UI / list of groups here
+                }
+
+                @Override
+                public void onError(String message) {
+                    Toast.makeText(MainActivity.this,
+                            "Failed to create group: " + message,
+                            Toast.LENGTH_LONG).show();
+                    Log.d("ERR", "Failed:" + message);
+                    saveBtn.setEnabled(true);
+                }
+            });
         });
-
-        dialog.show();
     }
 
     private void hideFab(NavController navController){

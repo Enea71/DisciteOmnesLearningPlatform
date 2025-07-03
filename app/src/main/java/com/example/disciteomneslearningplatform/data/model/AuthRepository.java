@@ -3,12 +3,10 @@ package com.example.disciteomneslearningplatform.data.model;
 import static android.content.ContentValues.TAG;
 import static android.content.Context.MODE_PRIVATE;
 
-import static okhttp3.internal.Internal.instance;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.view.PixelCopy;
+
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
