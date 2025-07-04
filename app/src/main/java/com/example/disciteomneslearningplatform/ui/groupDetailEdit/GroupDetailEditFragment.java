@@ -53,6 +53,7 @@ public class GroupDetailEditFragment extends Fragment {
 
         // 1) Setup RecyclerView with adapter
         adapter = new NameAdapter(R.layout.item_member_edit);
+        adapter.setOnDeleteClickListener(username -> lookupAndRemoveMember(username));
         binding.rvMembers.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvMembers.setAdapter(adapter);
 
@@ -86,7 +87,7 @@ public class GroupDetailEditFragment extends Fragment {
 
         vm.memberUpdateResult().observe(getViewLifecycleOwner(), added -> {
             if (Boolean.TRUE.equals(added)) {
-                Toast.makeText(requireContext(), "Member added!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Member changed!", Toast.LENGTH_SHORT).show();
                 // reload members via group reload
                 vm.loadGroup(bearer, groupId);
             } else {
@@ -167,6 +168,33 @@ public class GroupDetailEditFragment extends Fragment {
         });
     }
 
+    private void lookupAndRemoveMember(String username) {
+        repo.getUidByUsername(username, new AuthRepository.ResultCallback<String>() {
+            @Override
+            public void onSuccess(String uid) {
+                removeMemberFromGroup(uid);
+            }
+            @Override
+            public void onError(String errorMsg) {
+                Toast.makeText(requireContext(),
+                        "Couldn’t resolve user \"" + username + "\": " + errorMsg,
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    private void removeMemberFromGroup(String uidToRemove) {
+        Group current = vm.group().getValue();
+        if (current == null) return;
+
+        if (!current.members.contains(uidToRemove)) {
+            Toast.makeText(requireContext(), "User not in group", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<String> updated = new ArrayList<>(current.members);
+        updated.remove(uidToRemove);
+        vm.updateGroupMembers(bearer, current.id, updated);
+    }
     private void addMemberToGroup(String newUid) {
         Group current = vm.group().getValue();
         if (current == null) return;
