@@ -69,7 +69,12 @@ public class GroupsFragment extends Fragment {
                             "Delete failed: " + msg, Toast.LENGTH_LONG).show();
                 }
             });
-        });
+        }, group -> {
+                    Bundle args = new Bundle();
+                    args.putString("groupId", group.id);
+                    nav.navigate(R.id.groupDetailEditFragment, args);
+                }
+        );
 
         RecyclerView rv = binding.rvGroups;
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));

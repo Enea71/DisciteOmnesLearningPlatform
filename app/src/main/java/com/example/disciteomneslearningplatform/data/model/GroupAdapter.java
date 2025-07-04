@@ -23,18 +23,21 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.VH> {
     private final List<GroupAPI.GroupResponse> items = new ArrayList<>();
     private final Consumer<GroupAPI.GroupResponse> onClick;
     private final Consumer<GroupAPI.GroupResponse> onDelete;
+    private final Consumer<GroupAPI.GroupResponse> onManage;
     private final @LayoutRes int layoutRes;
 
-    public GroupAdapter(@LayoutRes int layoutRes, Consumer<GroupAPI.GroupResponse> onClick, Consumer<GroupAPI.GroupResponse> onDelete) {
+    public GroupAdapter(@LayoutRes int layoutRes, Consumer<GroupAPI.GroupResponse> onClick, Consumer<GroupAPI.GroupResponse> onDelete,Consumer<GroupAPI.GroupResponse> onManage) {
         this.onClick = onClick;
         this.layoutRes = layoutRes;
         this.onDelete   = onDelete;
+        this.onManage = onManage;
 
     }
     public GroupAdapter(@LayoutRes int layoutRes, Consumer<GroupAPI.GroupResponse> onClick) {
         this.onClick = onClick;
         this.layoutRes = layoutRes;
         this.onDelete=null;
+        this.onManage = null;
     }
 
     /** Replace current list and refresh UI */
@@ -53,14 +56,21 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.VH> {
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int pos) {
-        // Use the correct data type here:
         GroupAPI.GroupResponse g = items.get(pos);
         holder.tvName.setText(g.name);
         holder.tvCount.setText(g.members.size() + " members");
 
-        holder.itemView.setOnClickListener(_v -> onClick.accept(g));
-        if (layoutRes == R.layout.item_group_owner) {
-            holder.btnDelete.setOnClickListener(_v -> onDelete.accept(g));
+        // whole-card click
+        holder.itemView.setOnClickListener(v -> onClick.accept(g));
+
+        // manage-icon click → onManage
+        if (layoutRes == R.layout.item_group_owner && onManage != null) {
+            holder.btnManage.setOnClickListener(v -> onManage.accept(g));
+        }
+
+        // delete-icon click → onDelete
+        if (layoutRes == R.layout.item_group_owner && onDelete != null) {
+            holder.btnDelete.setOnClickListener(v -> onDelete.accept(g));
         }
     }
 

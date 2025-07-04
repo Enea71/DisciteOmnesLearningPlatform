@@ -16,12 +16,26 @@
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"/>
     </fragment>
-
+    <fragment
+        android:id="@+id/groupDetailEditFragment"
+        android:name="com.example.disciteomneslearningplatform.ui.groupDetailEdit.GroupDetailEditFragment"
+        tools:layout="@layout/fragment_group_edit">
+        <argument
+            android:name="groupId"
+            app:argType="string" />
+    </fragment>
     <fragment
         android:id="@+id/nav_groups"
         android:name="com.example.disciteomneslearningplatform.ui.groupManagement.GroupsFragment"
         android:label="@string/menu_groups"
         tools:layout="@layout/fragment_groups">
+        <action
+            android:id="@+id/action_groupsFragment_to_groupDetailEditFragment"
+            app:destination="@id/groupDetailEditFragment">
+            <argument
+                android:name="groupId"
+                app:argType="string" />
+        </action>
         <action
             android:id="@+id/action_nav_home_to_groupDetail"
             app:destination="@id/groupDetailFragment"
