@@ -34,8 +34,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-
+        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
 
         api = ApiClient.getApiClient().create(ApiService.class);
         repo = AuthRepository.getInstance(api, this.requireContext());

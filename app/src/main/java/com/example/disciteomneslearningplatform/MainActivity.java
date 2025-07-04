@@ -13,9 +13,12 @@ import android.widget.Toast;
 
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.example.disciteomneslearningplatform.data.model.GroupRepository;
+import com.example.disciteomneslearningplatform.ui.groupManagement.GroupsViewModel;
+import com.example.disciteomneslearningplatform.ui.home.HomeViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -179,6 +182,14 @@ public class MainActivity extends AppCompatActivity {
                             "Group “" + group.name + "” created!",
                             Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
+                    // Tell the "member" list to reload in HomeFragment:
+                    HomeViewModel hvm = new ViewModelProvider(MainActivity.this)
+                            .get(HomeViewModel.class);
+                    hvm.refreshMembers();
+                    // Tell the "owner" list to reload in GroupsFragment:
+                    GroupsViewModel gvm = new ViewModelProvider(MainActivity.this)
+                            .get(GroupsViewModel.class);
+                    gvm.refreshOwner();
                 }
                 @Override
                 public void onError(String message) {

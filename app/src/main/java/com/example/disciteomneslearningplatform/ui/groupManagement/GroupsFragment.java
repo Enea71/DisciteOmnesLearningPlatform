@@ -36,7 +36,7 @@ public class GroupsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentGroupsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        groupsViewModel = new ViewModelProvider(this).get(GroupsViewModel.class);
+        groupsViewModel = new ViewModelProvider(requireActivity()).get(GroupsViewModel.class);
 
         api = ApiClient.getApiClient().create(ApiService.class);
         repo = AuthRepository.getInstance(api, this.requireContext());
