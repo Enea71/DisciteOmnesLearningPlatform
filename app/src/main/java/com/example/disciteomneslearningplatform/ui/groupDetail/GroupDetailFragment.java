@@ -67,43 +67,11 @@ public class GroupDetailFragment extends Fragment {
 
             binding.tvGroupName.setText(groupName);
             binding.tvGroupDescription.setText(groupDescription);
+            binding.tvGroupName.setText(group.name);
+            binding.tvGroupDescription.setText(group.description);
 
-            // Get all ids
-            List<String> ids = group.members;
-            if (ids == null || ids.isEmpty()) {
-                Log.d("IDs","Ids Are empty");
-                adapter.setItems(Collections.emptyList());
-                return;
-            }
-            List<String> names = new ArrayList<>(Collections.nCopies(ids.size(), null));
-            AtomicInteger remaining = new AtomicInteger(ids.size());
-            // 4) Kick off one network call per ID
-            for (int i = 0; i < ids.size(); i++) {
-                final int index = i;
-                String memberId = ids.get(i);
-                Log.d("got ID", "got id in for loop"+ memberId);
-                repo.getUsernameByUid(memberId, new AuthRepository.ResultCallback<String>() {
-                    @Override
-                    public void onSuccess(String username) {
-                        Log.d("Username","User's name is:" + username);
-                        names.set(index, username);
-                        if (remaining.decrementAndGet() == 0) {
-                            adapter.setItems(names);
-                            Log.d("Set","Set names complete");
-                        }
-                    }
-                    @Override
-                    public void onError(String errorMsg) {
-                        names.set(index, "Error");
-                        Log.e("getUsernameByUid",
-                                "Failed for uid=" + memberId + ": " + errorMsg);
-
-                        if (remaining.decrementAndGet() == 0) {
-                            adapter.setItems(names);
-                        }
-                    }
-                });
-            }
+            // Call your helper instead of inlining:
+            loadMemberNames(group.members, adapter, repo);
 
         });
         vm.error().observe(getViewLifecycleOwner(), errMsg -> {
@@ -120,6 +88,42 @@ public class GroupDetailFragment extends Fragment {
         vm.loadGroup(bearer, groupId);
     }
 
+    private void loadMemberNames(
+            List<String> memberIds,
+            NameAdapter adapter,
+            AuthRepository repo
+    ) {
+        if (memberIds == null || memberIds.isEmpty()) {
+            adapter.setItems(Collections.emptyList());
+            return;
+        }
+
+        List<String> names = new ArrayList<>(Collections.nCopies(memberIds.size(), null));
+        AtomicInteger remaining = new AtomicInteger(memberIds.size());
+
+        for (int i = 0; i < memberIds.size(); i++) {
+            final int idx = i;
+            String uid = memberIds.get(i);
+
+            repo.getUsernameByUid(uid, new AuthRepository.ResultCallback<String>() {
+                @Override
+                public void onSuccess(String username) {
+                    names.set(idx, username);
+                    if (remaining.decrementAndGet() == 0) {
+                        adapter.setItems(names);
+                    }
+                }
+
+                @Override
+                public void onError(String errorMsg) {
+                    names.set(idx, "Error");
+                    if (remaining.decrementAndGet() == 0) {
+                        adapter.setItems(names);
+                    }
+                }
+            });
+        }
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();

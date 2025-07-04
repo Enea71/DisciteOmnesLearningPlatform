@@ -10,9 +10,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
+import com.example.disciteomneslearningplatform.data.model.NameAdapter;
 import com.example.disciteomneslearningplatform.databinding.FragmentGroupEditBinding;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import API.ApiClient;
 import API.ApiService;
@@ -38,10 +45,14 @@ public class GroupDetailEditFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        NameAdapter adapter = new NameAdapter();
+        binding.rvMembers.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.rvMembers.setAdapter(adapter);
+
         // Prepare AuthRepository & bearer token
         ApiService api = ApiClient.getApiClient().create(ApiService.class);
-        AuthRepository authRepo = AuthRepository.getInstance(api, requireContext());
-        bearer = "Bearer " + authRepo.getIdToken();
+        AuthRepository repo = AuthRepository.getInstance(api, requireContext());
+        bearer = "Bearer " + repo.getIdToken();
 
         // ViewModel
         vm = new ViewModelProvider(this).get(GroupDetailViewModel.class);
@@ -54,6 +65,8 @@ public class GroupDetailEditFragment extends Fragment {
         vm.group().observe(getViewLifecycleOwner(), group -> {
             binding.newGroupTitle.setText(group.name);
             binding.newGroupDescription.setText(group.description);
+            loadMemberNames(group.members, adapter, repo);
+
         });
 
         // Listen for update results
@@ -79,7 +92,42 @@ public class GroupDetailEditFragment extends Fragment {
             vm.updateGroupDescription(bearer, newDesc);
         });
     }
+    private void loadMemberNames(
+            List<String> memberIds,
+            NameAdapter adapter,
+            AuthRepository repo
+    ) {
+        if (memberIds == null || memberIds.isEmpty()) {
+            adapter.setItems(Collections.emptyList());
+            return;
+        }
 
+        List<String> names = new ArrayList<>(Collections.nCopies(memberIds.size(), null));
+        AtomicInteger remaining = new AtomicInteger(memberIds.size());
+
+        for (int i = 0; i < memberIds.size(); i++) {
+            final int idx = i;
+            String uid = memberIds.get(i);
+
+            repo.getUsernameByUid(uid, new AuthRepository.ResultCallback<String>() {
+                @Override
+                public void onSuccess(String username) {
+                    names.set(idx, username);
+                    if (remaining.decrementAndGet() == 0) {
+                        adapter.setItems(names);
+                    }
+                }
+
+                @Override
+                public void onError(String errorMsg) {
+                    names.set(idx, "Error");
+                    if (remaining.decrementAndGet() == 0) {
+                        adapter.setItems(names);
+                    }
+                }
+            });
+        }
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();
