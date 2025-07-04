@@ -39,6 +39,52 @@ router.post('/create', authenticate, async (req, res) => {
   }
 });
 
+// GET /groups/:id/tasks
+router.get('/:id/tasks', authenticate, async (req, res) => {
+  const groupId = req.params.id;
+  try {
+    const tasksSnap = await db
+      .collection('groups')
+      .doc(groupId)
+      .collection('tasks')
+      .orderBy('createdAt', 'asc')
+      .get();
+
+    const tasks = tasksSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    res.status(200).json(tasks);
+  } catch (err) {
+    console.error(`GET /groups/${groupId}/tasks failed:`, err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /groups/:id/tasks
+router.post('/:id/tasks', authenticate, async (req, res) => {
+  const groupId = req.params.id;
+  try {
+    const data = {
+      ...req.body,
+      groupId,
+      createdBy: req.uid,
+      createdAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+    const ref = await db
+      .collection('groups')
+      .doc(groupId)
+      .collection('tasks')
+      .add(data);
+
+    res.status(201).json({ id: ref.id, ...data });
+  } catch (err) {
+    console.error(`POST /groups/${groupId}/tasks failed:`, err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PUT /groups/:gid
 // Body: { name?, description?, members?, … }
 router.put('/:gid', authenticate, async (req, res) => {

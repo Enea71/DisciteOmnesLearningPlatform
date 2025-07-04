@@ -45,12 +45,13 @@ public class NameAdapter extends RecyclerView.Adapter<NameAdapter.VH> {
     public void onBindViewHolder(@NonNull VH holder, int position) {
         String username = items.get(position);
         holder.name.setText(username);
-
-        holder.btnDelete.setOnClickListener(v -> {
-            if (deleteListener != null && username != null) {
-                deleteListener.onDeleteClicked(username);
-            }
-        });
+        if (holder.btnDelete != null) {
+            holder.btnDelete.setOnClickListener(v -> {
+                if (deleteListener != null) {
+                    deleteListener.onDeleteClicked(username);
+                }
+            });
+        }
     }
 
     @Override public int getItemCount() { return items.size(); }

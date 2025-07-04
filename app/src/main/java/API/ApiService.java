@@ -1,5 +1,7 @@
 package API;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -36,6 +38,18 @@ public interface ApiService {
             @Header("Authorization") String auth,
             @Path("id") String groupId,
             @Body Group group
+    );
+    @GET("groups/{id}/tasks")
+    Call<List<Task>> getTasksForGroup(
+            @Header("Authorization") String bearer,
+            @Path("id") String groupId
+    );
+
+    @POST("groups/{id}/tasks")
+    Call<Task> createTask(
+            @Header("Authorization") String bearer,
+            @Path("id") String groupId,
+            @Body Task task
     );
     @PUT("users/{uid}")
     Call<Void> updateProfile(

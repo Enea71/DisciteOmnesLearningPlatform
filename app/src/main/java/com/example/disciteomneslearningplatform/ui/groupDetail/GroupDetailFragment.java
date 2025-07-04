@@ -16,7 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.disciteomneslearningplatform.R;
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.example.disciteomneslearningplatform.data.model.NameAdapter;
+import com.example.disciteomneslearningplatform.data.model.TaskAdapter;
 import com.example.disciteomneslearningplatform.databinding.FragmentGroupDetailBinding;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputEditText;
 
 
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import API.ApiClient;
 import API.ApiService;
+import API.Task;
 
 public class GroupDetailFragment extends Fragment {
 
@@ -82,6 +86,27 @@ public class GroupDetailFragment extends Fragment {
                             Toast.LENGTH_LONG)
                     .show();
         });
+// after your members‐adapter setup:
+        TaskAdapter taskAdapter = new TaskAdapter(R.layout.item_task);
+        binding.rvTasks.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.rvTasks.setAdapter(taskAdapter);
+
+// observe tasks LiveData
+        vm.tasks().observe(getViewLifecycleOwner(), list -> {
+            taskAdapter.setItems(list);
+        });
+
+// once the group loads, fetch its tasks
+        vm.group().observe(getViewLifecycleOwner(), grp -> {
+            String bearer = "Bearer " + repo.getIdToken();
+            vm.loadTasks(bearer, grp.id);
+        });
+
+// FAB to add a new task
+
+        binding.fabAddTask.setOnClickListener(v -> showAddTaskDialog());
+
+// … elsewhere in the Fragment:
 
         // Kick off load with the UID from bundle
         String groupId = requireArguments().getString("groupId");
@@ -124,6 +149,35 @@ public class GroupDetailFragment extends Fragment {
                 }
             });
         }
+    }
+    private void showAddTaskDialog() {
+        View form = LayoutInflater.from(requireContext())
+                .inflate(R.layout.dialog_add_task, null);
+
+        TextInputEditText etTitle = form.findViewById(R.id.etTaskTitle);
+        TextInputEditText etDesc  = form.findViewById(R.id.etTaskDesc);
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("New Task")
+                .setView(form)
+                .setPositiveButton("Create", (d,w) -> {
+                    String title = etTitle.getText().toString().trim();
+                    String desc  = etDesc.getText().toString().trim();
+                    if (title.isEmpty()) {
+                        Toast.makeText(requireContext(),
+                                "Title cannot be empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Task t = new Task();
+                    t.title       = title;
+                    t.description = desc;
+
+                    String bearer = "Bearer " + repo.getIdToken();
+                    String groupId = requireArguments().getString("groupId");
+                    vm.createTask(bearer, groupId, t);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
     @Override
     public void onDestroyView() {
