@@ -62,6 +62,20 @@ public class AuthRepository {
     }
 
 
+    public String getIdToken()  { return idToken;  }
+    public String getUid()      { return uid;      }
+    public String getEmail()    { return email;    }
+    public String getUsername() { return username; }
+    public static AuthRepository getInstance(ApiService api, Context context) {
+        if (instance == null) {
+            synchronized (LOCK) {
+                if (instance == null) {
+                    instance = new AuthRepository(api, context.getApplicationContext());
+                }
+            }
+        }
+        return instance;
+    }
     public void updateUsername(String username) {
         this.username = username;
         usernameLiveData.postValue(username);
@@ -198,20 +212,6 @@ public class AuthRepository {
                 });
     }
 
-    public String getIdToken()  { return idToken;  }
-    public String getUid()      { return uid;      }
-    public String getEmail()    { return email;    }
-    public String getUsername() { return username; }
-    public static AuthRepository getInstance(ApiService api, Context context) {
-        if (instance == null) {
-            synchronized (LOCK) {
-                if (instance == null) {
-                    instance = new AuthRepository(api, context.getApplicationContext());
-                }
-            }
-        }
-        return instance;
-    }
     public void getUidByUsername(String username, ResultCallback<String> cb) {
         api.getUidByUsername(username)
                 .enqueue(new Callback<UserAPI.UidResponse>() {
@@ -227,6 +227,25 @@ public class AuthRepository {
 
                     @Override
                     public void onFailure(Call<UserAPI.UidResponse> call, Throwable t) {
+                        cb.onError("Network error: " + t.getMessage());
+                    }
+                });
+    }
+    public void getUsernameByUid(String uid, ResultCallback<String> cb) {
+        api.getUsernameByUid(uid)
+                .enqueue(new Callback<UserAPI.UsernameResponse>() {
+                    @Override
+                    public void onResponse(Call<UserAPI.UsernameResponse> call,
+                                           Response<UserAPI.UsernameResponse> res) {
+                        if (res.isSuccessful() && res.body() != null) {
+                            cb.onSuccess(res.body().getUsername());
+                        } else {
+                            cb.onError("Server returned " + res.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<UserAPI.UsernameResponse> call, Throwable t) {
                         cb.onError("Network error: " + t.getMessage());
                     }
                 });

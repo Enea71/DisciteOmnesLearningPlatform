@@ -10,6 +10,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,8 +38,23 @@ public class GroupsFragment extends Fragment {
         View root = binding.getRoot();
         groupsViewModel = new ViewModelProvider(this).get(GroupsViewModel.class);
 
+        api = ApiClient.getApiClient().create(ApiService.class);
+        repo = AuthRepository.getInstance(api, this.requireContext());
+        groupRepo =new GroupRepository(repo);
+
+        return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        NavController nav = Navigation.findNavController(view);
+
         adapter = new GroupAdapter(R.layout.item_group_owner, group -> {
-            //click
+            Bundle args = new Bundle();
+            args.putString("groupId", group.id);
+            nav.navigate(R.id.groupDetailFragment, args);
         },group ->{
             String bearer = "Bearer " + repo.getIdToken();
             groupRepo.deleteGroup(bearer, group.id, new AuthRepository.ResultCallback<Void>() {
@@ -57,17 +74,6 @@ public class GroupsFragment extends Fragment {
         RecyclerView rv = binding.rvGroups;
         rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
-
-        api = ApiClient.getApiClient().create(ApiService.class);
-        repo = AuthRepository.getInstance(api, this.requireContext());
-        groupRepo =new GroupRepository(repo);
-
-        return root;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
 
         groupsViewModel.ownerGroups.observe(getViewLifecycleOwner(), groups -> {
             Log.d("Observer", "Observed new group size " + groups.size());

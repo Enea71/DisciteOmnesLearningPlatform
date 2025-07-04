@@ -11,6 +11,7 @@ import java.util.List;
 
 import API.ApiClient;
 import API.ApiService;
+import API.Group;
 import API.GroupAPI;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -113,6 +114,23 @@ public class GroupRepository {
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 cb.onError("Network error: " + t.getMessage());
+            }
+        });
+    }
+    public void getGroupById(String bearer, String groupId, ResultCallback<Group> callback) {
+        api.getGroup(bearer, groupId).enqueue(new retrofit2.Callback<Group>() {
+            @Override
+            public void onResponse(Call<Group> call, Response<Group> resp) {
+                if (resp.isSuccessful() && resp.body() != null) {
+                    callback.onSuccess(resp.body());
+                } else {
+                    callback.onError("HTTP " + resp.code() + ": " + resp.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Group> call, Throwable t) {
+                callback.onError(t.getMessage());
             }
         });
     }

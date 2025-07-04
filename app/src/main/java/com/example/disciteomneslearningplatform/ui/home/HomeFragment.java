@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,13 +36,6 @@ public class HomeFragment extends Fragment {
         View root = binding.getRoot();
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
-        adapter = new GroupAdapter(R.layout.item_group_home, group -> {
-            //click
-        });
-
-        RecyclerView rv = binding.rvGroups;
-        rv.setLayoutManager(new GridLayoutManager(requireContext(), 2));
-        rv.setAdapter(adapter);
 
         api = ApiClient.getApiClient().create(ApiService.class);
         repo = AuthRepository.getInstance(api, this.requireContext());
@@ -52,7 +47,17 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        NavController nav = Navigation.findNavController(view);
 
+        adapter = new GroupAdapter(R.layout.item_group_home, group -> {
+            Bundle args = new Bundle();
+            args.putString("groupId", group.id);
+            nav.navigate(R.id.groupDetailFragment, args);
+        });
+
+        RecyclerView rv = binding.rvGroups;
+        rv.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+        rv.setAdapter(adapter);
         homeViewModel.memberGroups.observe(getViewLifecycleOwner(), groups -> {
             Log.d("Observer", "Observed new group size " + groups.size());
             adapter.setGroups(groups);

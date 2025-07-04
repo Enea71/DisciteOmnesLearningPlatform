@@ -27,7 +27,10 @@ public interface ApiService {
     Call<UserAPI.UidResponse> getUidByUsername(
             @Path("username") String username
     );
-
+    @GET("users/{uid}/getusername")
+    Call<UserAPI.UsernameResponse> getUsernameByUid(
+            @Path("uid") String uid
+    );
     @PUT("users/{uid}")
     Call<Void> updateProfile(
             @Header("Authorization") String bearer,
@@ -61,6 +64,10 @@ public interface ApiService {
     Call<GroupAPI.GroupsResponse> getMemberGroups(
             @Header("Authorization") String bearer
     );
+    @GET("groups/{gid}")
+    Call<Group> getGroup(
+            @Header("Authorization") String bearer,
+            @Path("gid") String gid);
 
     @GET("groups/owner")
     Call<GroupAPI.GroupsResponse> getOwnerGroups(

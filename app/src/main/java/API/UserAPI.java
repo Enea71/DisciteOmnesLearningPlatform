@@ -106,4 +106,9 @@ public class UserAPI {
         public String getUid() { return uid; }
     }
 
+    public class UsernameResponse {
+        @SerializedName("username")
+        private String username;
+        public String getUsername() { return username; }
+    }
 }
