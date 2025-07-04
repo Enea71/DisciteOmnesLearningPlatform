@@ -1,10 +1,9 @@
-package com.example.disciteomneslearningplatform.ui.groupManagement;
+package com.example.disciteomneslearningplatform.data.model;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;

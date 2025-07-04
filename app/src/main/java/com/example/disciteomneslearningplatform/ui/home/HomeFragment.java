@@ -1,13 +1,10 @@
 package com.example.disciteomneslearningplatform.ui.home;
 
-import static java.security.AccessController.getContext;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -19,7 +16,7 @@ import com.example.disciteomneslearningplatform.R;
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.example.disciteomneslearningplatform.data.model.GroupRepository;
 import com.example.disciteomneslearningplatform.databinding.FragmentHomeBinding;
-import com.example.disciteomneslearningplatform.ui.groupManagement.GroupAdapter;
+import com.example.disciteomneslearningplatform.data.model.GroupAdapter;
 
 import API.ApiClient;
 import API.ApiService;
