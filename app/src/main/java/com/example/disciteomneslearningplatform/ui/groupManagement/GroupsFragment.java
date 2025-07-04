@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.disciteomneslearningplatform.R;
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.example.disciteomneslearningplatform.data.model.GroupRepository;
 import com.example.disciteomneslearningplatform.databinding.FragmentGroupsBinding;
@@ -36,8 +37,8 @@ public class GroupsFragment extends Fragment {
         View root = binding.getRoot();
         groupsViewModel = new ViewModelProvider(this).get(GroupsViewModel.class);
 
-        adapter = new GroupAdapter(group -> {
-            // handle click
+        adapter = new GroupAdapter(R.layout.item_group_owner, group -> {
+            //click
         });
 
         RecyclerView rv = binding.rvGroups;

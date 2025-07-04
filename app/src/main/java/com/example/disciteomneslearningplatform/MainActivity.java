@@ -1,13 +1,11 @@
 package com.example.disciteomneslearningplatform;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,14 +25,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.disciteomneslearningplatform.databinding.ActivityMainBinding;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 import API.ApiClient;
 import API.ApiService;
 import API.GroupAPI;
-import API.UserAPI;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -57,12 +53,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.appBarMain.toolbar);
         DrawerLayout drawer = binding.drawerLayout;
 
-        binding.appBarMain.rightButton.setOnClickListener(view ->{
-            createNewGroupOverlay();
-        });
+        binding.appBarMain.rightButton.setOnClickListener(view -> createNewGroupOverlay());
 
          navigationView = binding.navView;
-
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         // adds the four lines
@@ -83,18 +76,14 @@ public class MainActivity extends AppCompatActivity {
             TextView tvEmail = header.findViewById(R.id.email_address);
             tvUsername.setText(username);
             tvEmail.setText(repo.getEmail());
-
         });
-
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==R.id.sign_out){
             doLogout();
@@ -112,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
             }
         return super.onOptionsItemSelected(item);
     }
-
     public void doLogout(){
         Toast.makeText(this, "Goodbye, " +  repo.getUsername() , Toast.LENGTH_LONG).show();
         repo.logout();
@@ -136,9 +124,8 @@ public class MainActivity extends AppCompatActivity {
         EditText titleInput = overlay.findViewById(R.id.overlayTitleInput);
         EditText descInput  = overlay.findViewById(R.id.overlayDescInput);
         EditText usersToAdd = overlay.findViewById(R.id.overlayMemberInput);
-        Button addUser = overlay.findViewById(R.id.add_user);
-        Button saveBtn     = overlay.findViewById(R.id.overlaySaveButton);
-
+        Button addUser      = overlay.findViewById(R.id.add_user);
+        Button saveBtn      = overlay.findViewById(R.id.overlaySaveButton);
 
         // Build & show the dialog
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -159,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this,
                             "Added user: " + username,
                             Toast.LENGTH_SHORT).show();
+                    for (int i = 0; i < uidToAdd.size(); i++) {
+                        Log.d("User:"+i,"user"+ uidToAdd.get(i));
+                    }
                 }
                 @Override
                 public void onError(String msg) {
@@ -178,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 return;
             }
-
             // Disable the button to prevent double-taps
             saveBtn.setEnabled(false);
 
@@ -202,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
             });
         });
     }
-
     private void hideFab(NavController navController){
         FloatingActionButton rightFab = findViewById(R.id.rightButton);
         FloatingActionButton leftFab  = findViewById(R.id.leftButton);

@@ -1,5 +1,7 @@
 package API;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.Date;
 
 public class UserAPI {
@@ -99,6 +101,7 @@ public class UserAPI {
         }
     }
     public static class UidResponse {
+        @SerializedName("uid")
         private String uid;
         public String getUid() { return uid; }
     }

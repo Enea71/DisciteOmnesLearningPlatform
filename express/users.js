@@ -209,8 +209,9 @@ router.get('/getuid/:username', async (req, res) => {
     if (snap.empty) {
       return res.status(404).json({ error: 'User not found' });
     }
-    const { uid } = snap.docs[0].id;
-    return res.json({ uid });
+    const uid  = snap.docs[0].id;
+    return res.json({uid});
+
   } catch (err) {
     console.error(`GET /users/${username} failed:`, err);
     return res.status(500).json({ error: err.message });
