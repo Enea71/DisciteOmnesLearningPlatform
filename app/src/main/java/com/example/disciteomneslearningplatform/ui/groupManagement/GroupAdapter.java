@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -53,6 +54,17 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.VH> {
         holder.tvName.setText(g.name);
         holder.tvCount.setText(g.members.size() + " members");
         holder.itemView.setOnClickListener(_v -> onClick.accept(g));
+        holder.btnDelete.setOnClickListener(_v -> {
+            // e.g. call back into your Fragment/Activity:
+            //   onDeleteClicked.accept(g);
+            // or handle deletion right here:
+
+            Toast.makeText(
+                    holder.itemView.getContext(),
+                    "Deleted group “" + g.name + "”",
+                    Toast.LENGTH_SHORT
+            ).show();
+        });
     }
 
     @Override
@@ -62,13 +74,13 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.VH> {
 
     static class VH extends RecyclerView.ViewHolder {
         TextView tvName, tvCount;
-        View btnDelete;
+        View btnDelete,btnManage;
         VH(View item) {
             super(item);
             tvName  = item.findViewById(R.id.tvName);
             tvCount = item.findViewById(R.id.tvCount);
             btnDelete = item.findViewById(R.id.btnDelete);
-
+            btnManage = item.findViewById(R.id.btnManage);
         }
     }
 }

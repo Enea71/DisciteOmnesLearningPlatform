@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.disciteomneslearningplatform.R;
@@ -42,7 +43,7 @@ public class GroupsFragment extends Fragment {
         });
 
         RecyclerView rv = binding.rvGroups;
-        rv.setLayoutManager(new GridLayoutManager(requireContext(), 2));
+        rv.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv.setAdapter(adapter);
 
         api = ApiClient.getApiClient().create(ApiService.class);
