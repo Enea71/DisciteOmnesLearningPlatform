@@ -66,4 +66,9 @@ public interface ApiService {
     Call<GroupAPI.GroupsResponse> getOwnerGroups(
             @Header("Authorization") String bearer
     );
+    @DELETE("groups/{gid}")
+    Call<Void>deleteGroup(
+        @Header("Authorization") String bearer,
+        @Path("gid") String gid
+    );
 }

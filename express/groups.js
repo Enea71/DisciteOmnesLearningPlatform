@@ -73,7 +73,6 @@ router.put('/:gid', authenticate, async (req, res) => {
 // DELETE /groups/:gid
 router.delete('/:gid', authenticate, async (req, res) => {
   try {
-    // optional check: only allow creator to delete
     await db.collection('groups').doc(req.params.gid).delete();
     res.json({ success: true });
   } catch (err) {

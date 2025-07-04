@@ -100,4 +100,20 @@ public class GroupRepository {
                     }
                 });
     }
+    public void deleteGroup(String bearer, String gid, AuthRepository.ResultCallback cb){
+        api.deleteGroup(bearer,gid).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> resp) {
+                if (resp.isSuccessful()) {
+                    cb.onSuccess(null);  // no data to pass
+                } else {
+                    cb.onError("Failed to delete: HTTP " + resp.code());
+                }
+            }
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                cb.onError("Network error: " + t.getMessage());
+            }
+        });
+    }
 }

@@ -40,6 +40,20 @@ public class GroupsFragment extends Fragment {
 
         adapter = new GroupAdapter(R.layout.item_group_owner, group -> {
             //click
+        },group ->{
+            String bearer = "Bearer " + repo.getIdToken();
+            groupRepo.deleteGroup(bearer, group.id, new AuthRepository.ResultCallback<Void>() {
+                @Override public void onSuccess(Void unused) {
+                    Toast.makeText(getContext(),
+                            "Deleted “" + group.name + "”", Toast.LENGTH_SHORT).show();
+                    // remove from adapter:
+                    adapter.removeGroup(group);
+                }
+                @Override public void onError(String msg) {
+                    Toast.makeText(getContext(),
+                            "Delete failed: " + msg, Toast.LENGTH_LONG).show();
+                }
+            });
         });
 
         RecyclerView rv = binding.rvGroups;

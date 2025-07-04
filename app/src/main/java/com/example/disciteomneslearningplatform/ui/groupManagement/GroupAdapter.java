@@ -23,14 +23,19 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.VH> {
     // Internal list of GroupResponse
     private final List<GroupAPI.GroupResponse> items = new ArrayList<>();
     private final Consumer<GroupAPI.GroupResponse> onClick;
+    private final Consumer<GroupAPI.GroupResponse> onDelete;
     private final @LayoutRes int layoutRes;
 
-    /**
-     * @param onClick  handler that receives the clicked GroupResponse
-     */
+    public GroupAdapter(@LayoutRes int layoutRes, Consumer<GroupAPI.GroupResponse> onClick, Consumer<GroupAPI.GroupResponse> onDelete) {
+        this.onClick = onClick;
+        this.layoutRes = layoutRes;
+        this.onDelete   = onDelete;
+
+    }
     public GroupAdapter(@LayoutRes int layoutRes, Consumer<GroupAPI.GroupResponse> onClick) {
         this.onClick = onClick;
         this.layoutRes = layoutRes;
+        this.onDelete=null;
     }
 
     /** Replace current list and refresh UI */
@@ -53,18 +58,11 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.VH> {
         GroupAPI.GroupResponse g = items.get(pos);
         holder.tvName.setText(g.name);
         holder.tvCount.setText(g.members.size() + " members");
-        holder.itemView.setOnClickListener(_v -> onClick.accept(g));
-        holder.btnDelete.setOnClickListener(_v -> {
-            // e.g. call back into your Fragment/Activity:
-            //   onDeleteClicked.accept(g);
-            // or handle deletion right here:
 
-            Toast.makeText(
-                    holder.itemView.getContext(),
-                    "Deleted group “" + g.name + "”",
-                    Toast.LENGTH_SHORT
-            ).show();
-        });
+        holder.itemView.setOnClickListener(_v -> onClick.accept(g));
+        if (layoutRes == R.layout.item_group_owner) {
+            holder.btnDelete.setOnClickListener(_v -> onDelete.accept(g));
+        }
     }
 
     @Override
@@ -81,6 +79,13 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.VH> {
             tvCount = item.findViewById(R.id.tvCount);
             btnDelete = item.findViewById(R.id.btnDelete);
             btnManage = item.findViewById(R.id.btnManage);
+        }
+    }
+    public void removeGroup(GroupAPI.GroupResponse group) {
+        int index = items.indexOf(group);
+        if (index >= 0) {
+            items.remove(index);
+            notifyItemRemoved(index);
         }
     }
 }
