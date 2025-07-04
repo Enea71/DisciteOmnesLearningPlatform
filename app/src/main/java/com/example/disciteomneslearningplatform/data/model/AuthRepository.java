@@ -128,7 +128,12 @@ public class AuthRepository {
                             onLoginOrRegisterSuccess(tempLoginResponse);
                             cb.onSuccess(r.body());
                         } else {
-                            cb.onError("Email Already has an Account, Error: "+r.code());
+                            switch(r.code()){
+                                case 400:
+                                    cb.onError("Email Already has an Account, Error: "+r.code());
+                                case 409:
+                                    cb.onError("Username already in use, Error: "+r.code());
+                            }
                         }
                     }
                     @Override
@@ -163,10 +168,12 @@ public class AuthRepository {
                         if (resp.isSuccessful()) {
                             cb.onSuccess(resp.body());
                         } else {
-                            cb.onError("Failed: " + resp.code());
+                            if(resp.code()==409)
+                                cb.onError("Username already exists. Error" + resp.code());
+                            else
+                                cb.onError("Failed: " + resp.code());
                         }
                     }
-
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
                         cb.onError("Network error: " + t.getMessage());

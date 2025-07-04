@@ -2,7 +2,7 @@ const express = require('express');
 const router  = express.Router();
 const admin   = require('firebase-admin');
 const db      = admin.firestore();
-const { authenticate } = require('./middleware');
+const { authenticate, checkUsername } = require('./middleware');
 const fetch             = require('node-fetch');    
 
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
@@ -15,7 +15,7 @@ if (!FIREBASE_API_KEY) {
  * Body: { email, password, username }
  * → Creates Auth user + a Firestore “users/{uid}” doc
  */
-router.post('/register', async (req, res) => {
+router.post('/register',checkUsername, async (req, res) => {
   const { email, password, username } = req.body;
   if (!username) {
     return res.status(400).json({ error: 'Username required' });
@@ -145,7 +145,7 @@ router.post('/:uid/password',authenticate,
 
 // PUT /users/:uid/username
 // Body: { username: "new username" }
-router.put('/:uid/username',authenticate,
+router.put('/:uid/username',authenticate, checkUsername,
     async (req, res) => {
       // Ensure caller owns this account
       if (req.uid !== req.params.uid) {
