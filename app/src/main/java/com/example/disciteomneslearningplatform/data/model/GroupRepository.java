@@ -1,5 +1,11 @@
 package com.example.disciteomneslearningplatform.data.model;
 
+import android.util.Log;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,16 +25,61 @@ public class GroupRepository {
     public GroupRepository(AuthRepository auth) {
         this.auth = auth;
     }
+    // In-memory caches
+    private final List<GroupAPI.GroupResponse> memberCache = new ArrayList<>();
+    private final List<GroupAPI.GroupResponse> ownerCache  = new ArrayList<>();
+    // LiveData UI can observe
+    private final MutableLiveData<List<GroupAPI.GroupResponse>> memberGroupsLive = new MutableLiveData<>();
+    private final MutableLiveData<List<GroupAPI.GroupResponse>> ownerGroupsLive  = new MutableLiveData<>();
+
+    public LiveData<List<GroupAPI.GroupResponse>> memberGroups() {
+        return memberGroupsLive;
+    }
+    public LiveData<List<GroupAPI.GroupResponse>> ownerGroups() {
+        return ownerGroupsLive;
+    }
+    public void fetchMemberGroups() {
+        String token = "Bearer " + auth.getIdToken();
+        api.getMemberGroups(token).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<GroupAPI.GroupsResponse> c, Response<GroupAPI.GroupsResponse> r) {
+                if (r.isSuccessful() && r.body()!=null) {
+                    memberCache.clear();
+                    memberCache.addAll(r.body().groups);
+                    memberGroupsLive.setValue(new ArrayList<>(memberCache));
+                    Log.d("memberCache", "Pushed new membercache");
+                }
+            }
+            @Override
+            public void onFailure(Call<GroupAPI.GroupsResponse> c, Throwable t) {
+                Log.d("memberCache", "Pushing cache failed: " + t);
+            }
+        });
+    }
+    public void fetchOwnerGroups() {
+        String token = "Bearer " + auth.getIdToken();
+        api.getOwnerGroups(token).enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<GroupAPI.GroupsResponse> c, Response<GroupAPI.GroupsResponse> r) {
+                if (r.isSuccessful() && r.body()!=null) {
+                    ownerCache.clear();
+                    ownerCache.addAll(r.body().groups);
+                    ownerGroupsLive.setValue(new ArrayList<>(ownerCache));
+                    Log.d("ownerCache", "Pushed new ownercache");
+                }
+            }
+            @Override
+            public void onFailure(Call<GroupAPI.GroupsResponse> c, Throwable t) {
+                Log.d("ownerCache", "Pushing cache failed: " + t);
+            }
+        });
+    }
 
     public interface ResultCallback<T> {
         void onSuccess(T data);
         void onError(String message);
     }
 
-    /**
-     * Creates a new group with the current user as its only initial member.
-     * Calls back with the newly-created GroupResponse.
-     */
     public void createGroup(String name, String description, ResultCallback<GroupAPI.GroupResponse> cb) {
         String token = "Bearer " + auth.getIdToken();
         List<String> members = Collections.singletonList(auth.getUid());
@@ -47,37 +98,6 @@ public class GroupRepository {
                     @Override
                     public void onFailure(Call<GroupAPI.GroupResponse> call, Throwable t) {
                         cb.onError("Network error: " + t.getMessage());
-                    }
-                });
-    }
-    public void getMemberGroups(ResultCallback<GroupAPI.GroupsResponse> cb) {
-        String token = "Bearer " + auth.getIdToken();
-        api.getMemberGroups(token).enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<GroupAPI.GroupsResponse> call,
-                                   Response<GroupAPI.GroupsResponse> res) {
-                if (res.isSuccessful() && res.body() != null) {
-                    cb.onSuccess(res.body());
-                } else {
-                    cb.onError("Fetch failed: HTTP " + res.code());
-                }
-            }
-            @Override
-            public void onFailure(Call<GroupAPI.GroupsResponse> call, Throwable t) {
-                cb.onError("Network error: " + t.getMessage());
-            }
-        });
-    }
-    public void getOwnerGroups(ResultCallback<GroupAPI.GroupsResponse> cb) {
-        String token = "Bearer " + auth.getIdToken();
-        api.getOwnerGroups(token)
-                .enqueue(new Callback<>() {
-                    @Override public void onResponse(Call<GroupAPI.GroupsResponse> c, Response<GroupAPI.GroupsResponse> r) {
-                        if (r.isSuccessful() && r.body()!=null) cb.onSuccess(r.body());
-                        else cb.onError("HTTP "+r.code());
-                    }
-                    @Override public void onFailure(Call<GroupAPI.GroupsResponse> c, Throwable t) {
-                        cb.onError(t.getMessage());
                     }
                 });
     }
