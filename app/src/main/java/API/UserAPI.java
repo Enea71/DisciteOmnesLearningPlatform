@@ -98,6 +98,9 @@ public class UserAPI {
             this.username = username;
         }
     }
-
+    public static class UidResponse {
+        private String uid;
+        public String getUid() { return uid; }
+    }
 
 }

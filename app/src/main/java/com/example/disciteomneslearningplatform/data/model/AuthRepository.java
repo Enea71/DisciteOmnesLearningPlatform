@@ -212,4 +212,23 @@ public class AuthRepository {
         }
         return instance;
     }
+    public void getUidByUsername(String username, ResultCallback<String> cb) {
+        api.getUidByUsername(username)
+                .enqueue(new Callback<UserAPI.UidResponse>() {
+                    @Override
+                    public void onResponse(Call<UserAPI.UidResponse> call,
+                                           Response<UserAPI.UidResponse> res) {
+                        if (res.isSuccessful() && res.body() != null) {
+                            cb.onSuccess(res.body().getUid());
+                        } else {
+                            cb.onError("Server returned " + res.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<UserAPI.UidResponse> call, Throwable t) {
+                        cb.onError("Network error: " + t.getMessage());
+                    }
+                });
+    }
 }

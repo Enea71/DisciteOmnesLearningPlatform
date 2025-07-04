@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="24dp">
@@ -7,7 +8,9 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
+        android:id="@+id/overlayRootContainer"
         android:layout_height="wrap_content">
+
 
         <EditText
             android:id="@+id/overlayTitleInput"
@@ -22,18 +25,37 @@
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
             android:layout_marginTop="12dp"/>
-        <EditText
-            android:id="@+id/overlayMemberInput"
-            android:hint="Users"
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:layout_marginTop="12dp"/>
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <EditText
+                android:id="@+id/overlayMemberInput"
+                android:hint="Users"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.8"
+                android:layout_marginEnd="16dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/add_user"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                app:icon="@drawable/ic_overlay_add_user"
+                android:backgroundTint="?attr/buttonColor"/>
+        </LinearLayout>
         <Button
             android:id="@+id/overlaySaveButton"
             android:text="Submit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center"
+            />
     </LinearLayout>
 </ScrollView>

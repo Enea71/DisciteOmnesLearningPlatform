@@ -202,7 +202,20 @@ router.get('/getusername/:uid', async (req, res) => {
   }
 });
 
-
+router.get('/getuid/:username', async (req, res) => {
+  const { username } = req.params;
+  try {
+    const snap = await db.collection('users').where('username', '==', username).get();
+    if (snap.empty) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const { uid } = snap.docs[0].id;
+    return res.json({ uid });
+  } catch (err) {
+    console.error(`GET /users/${username} failed:`, err);
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 
 

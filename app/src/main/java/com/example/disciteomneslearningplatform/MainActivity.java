@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -14,12 +15,9 @@ import android.widget.Toast;
 
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.example.disciteomneslearningplatform.data.model.GroupRepository;
-import com.example.disciteomneslearningplatform.ui.groupManagement.GroupsViewModel;
-import com.example.disciteomneslearningplatform.ui.home.HomeViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import androidx.appcompat.app.AlertDialog;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -30,14 +28,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.disciteomneslearningplatform.databinding.ActivityMainBinding;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import API.ApiClient;
 import API.ApiService;
 import API.GroupAPI;
+import API.UserAPI;
 
 
 public class MainActivity extends AppCompatActivity {
-
-
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
     NavigationView navigationView;
@@ -107,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
                     .setView(overlay)
                     .setCancelable(true)
                     .create();
-
-
             return true;
 
             }
@@ -137,7 +135,10 @@ public class MainActivity extends AppCompatActivity {
         // Find the fields & button
         EditText titleInput = overlay.findViewById(R.id.overlayTitleInput);
         EditText descInput  = overlay.findViewById(R.id.overlayDescInput);
+        EditText usersToAdd = overlay.findViewById(R.id.overlayMemberInput);
+        Button addUser = overlay.findViewById(R.id.add_user);
         Button saveBtn     = overlay.findViewById(R.id.overlaySaveButton);
+
 
         // Build & show the dialog
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -145,13 +146,34 @@ public class MainActivity extends AppCompatActivity {
                 .setCancelable(true)
                 .create();
         dialog.show();
+        List<String> uidToAdd = new ArrayList<>();
+        uidToAdd.add(repo.getUid());
+        addUser.setOnClickListener(v -> {
 
+            String username = usersToAdd.getText().toString().trim();
+            repo.getUidByUsername(username, new AuthRepository.ResultCallback<>() {
+                @Override
+                public void onSuccess(String uid) {
+                    Log.d("Uid", "GOTCHU");
+                    uidToAdd.add(uid);
+                    Toast.makeText(MainActivity.this,
+                            "Added user: " + username,
+                            Toast.LENGTH_SHORT).show();
+                }
+                @Override
+                public void onError(String msg) {
+                    Toast.makeText(MainActivity.this,
+                            "Couldn’t add “" + username + "”: " + msg,
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
         // On Submit, send the REST POST to /groups/create
         saveBtn.setOnClickListener(v -> {
             String title = titleInput.getText().toString().trim();
             String desc  = descInput.getText().toString().trim();
             if (title.isEmpty() || desc.isEmpty()) {
-                Toast.makeText(this,
+            Toast.makeText(this,
                         "Please fill in both fields",
                         Toast.LENGTH_SHORT).show();
                 return;
@@ -160,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
             // Disable the button to prevent double-taps
             saveBtn.setEnabled(false);
 
-            groupRepo.createGroup(title, desc, new GroupRepository.ResultCallback<GroupAPI.GroupResponse>() {
+            groupRepo.createGroup(title, desc, uidToAdd, new GroupRepository.ResultCallback<GroupAPI.GroupResponse>() {
                 @Override
                 public void onSuccess(GroupAPI.GroupResponse group) {
                     // e.g. group.id, group.name, group.description are available
@@ -169,7 +191,6 @@ public class MainActivity extends AppCompatActivity {
                             Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 }
-
                 @Override
                 public void onError(String message) {
                     Toast.makeText(MainActivity.this,

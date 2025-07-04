@@ -23,6 +23,11 @@ public interface ApiService {
             @Path("uid") String uid
     );
 
+    @GET("users/getuid/{username}")
+    Call<UserAPI.UidResponse> getUidByUsername(
+            @Path("username") String username
+    );
+
     @PUT("users/{uid}")
     Call<Void> updateProfile(
             @Header("Authorization") String bearer,

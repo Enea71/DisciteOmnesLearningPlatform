@@ -80,9 +80,8 @@ public class GroupRepository {
         void onError(String message);
     }
 
-    public void createGroup(String name, String description, ResultCallback<GroupAPI.GroupResponse> cb) {
+    public void createGroup(String name, String description, List<String> members, ResultCallback<GroupAPI.GroupResponse> cb) {
         String token = "Bearer " + auth.getIdToken();
-        List<String> members = Collections.singletonList(auth.getUid());
 
         api.createGroup(token, new GroupAPI.CreateGroupRequest(name, description, members))
                 .enqueue(new Callback<>() {
