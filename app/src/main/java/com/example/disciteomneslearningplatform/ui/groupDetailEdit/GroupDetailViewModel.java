@@ -15,7 +15,7 @@ import API.ApiService;
 import API.Group;
 
 public class GroupDetailViewModel extends AndroidViewModel {
-    private final GroupRepository repo;
+    private final GroupRepository groupRepo;
     private final MutableLiveData<Group> _group = new MutableLiveData<>();
     private final MutableLiveData<String> _error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _updateResult = new MutableLiveData<>();
@@ -23,8 +23,8 @@ public class GroupDetailViewModel extends AndroidViewModel {
     public GroupDetailViewModel(@NonNull Application app) {
         super(app);
         ApiService api = ApiClient.getApiClient().create(ApiService.class);
-        AuthRepository auth = AuthRepository.getInstance(api, app);
-        repo = new GroupRepository(auth);
+        AuthRepository repo = AuthRepository.getInstance(api, app);
+        groupRepo = new GroupRepository(repo);
     }
 
     public LiveData<Group> group() { return _group; }
@@ -33,7 +33,7 @@ public class GroupDetailViewModel extends AndroidViewModel {
 
     /** Load full group */
     public void loadGroup(String bearer, String groupId) {
-        repo.getGroupById(bearer, groupId, new GroupRepository.ResultCallback<Group>() {
+        groupRepo.getGroupById(bearer, groupId, new GroupRepository.ResultCallback<Group>() {
             @Override public void onSuccess(Group data) {
                 _group.postValue(data);
             }
@@ -47,8 +47,8 @@ public class GroupDetailViewModel extends AndroidViewModel {
     public void updateGroupTitle(String bearer, String newTitle) {
         Group current = _group.getValue();
         if (current == null) return;
-        current.name = newTitle;/*
-        repo.updateGroup(bearer, current, new GroupRepository.ResultCallback<Group>() {
+        current.name = newTitle;
+        groupRepo.updateGroup(bearer, current, new GroupRepository.ResultCallback<Group>() {
             @Override public void onSuccess(Group data) {
                 _group.postValue(data);
                 _updateResult.postValue(true);
@@ -57,15 +57,15 @@ public class GroupDetailViewModel extends AndroidViewModel {
                 _error.postValue(msg);
                 _updateResult.postValue(false);
             }
-        });*/
+        });
     }
 
     /** Update only the description */
     public void updateGroupDescription(String bearer, String newDescription) {
         Group current = _group.getValue();
         if (current == null) return;
-        current.description = newDescription;/*
-        repo.updateGroup(bearer, current, new GroupRepository.ResultCallback<Group>() {
+        current.description = newDescription;
+        groupRepo.updateGroup(bearer, current, new GroupRepository.ResultCallback<Group>() {
             @Override public void onSuccess(Group data) {
                 _group.postValue(data);
                 _updateResult.postValue(true);
@@ -74,6 +74,6 @@ public class GroupDetailViewModel extends AndroidViewModel {
                 _error.postValue(msg);
                 _updateResult.postValue(false);
             }
-        });*/
+        });
     }
 }

@@ -31,6 +31,12 @@ public interface ApiService {
     Call<UserAPI.UsernameResponse> getUsernameByUid(
             @Path("uid") String uid
     );
+    @PUT("groups/{id}")
+    Call<Group> updateGroup(
+            @Header("Authorization") String auth,
+            @Path("id") String groupId,
+            @Body Group group
+    );
     @PUT("users/{uid}")
     Call<Void> updateProfile(
             @Header("Authorization") String bearer,

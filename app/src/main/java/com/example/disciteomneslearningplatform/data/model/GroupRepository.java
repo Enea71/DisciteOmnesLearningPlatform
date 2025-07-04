@@ -134,4 +134,26 @@ public class GroupRepository {
             }
         });
     }
+    public void updateGroup(
+            String bearer,
+            Group group,
+            ResultCallback<Group> cb
+    ) {
+        Call<Group> call = api.updateGroup(bearer, group.id, group);
+        call.enqueue(new Callback<Group>() {
+            @Override
+            public void onResponse(Call<Group> call, Response<Group> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    cb.onSuccess(response.body());
+                } else {
+                    cb.onError("Update failed: HTTP " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Group> call, Throwable t) {
+                cb.onError(t.getMessage());
+            }
+        });
+    }
 }

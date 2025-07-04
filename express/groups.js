@@ -22,7 +22,6 @@ router.get('/', authenticate, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });*/
-
 // POST /groups
 // Body: { name, description, members: [uid1, uid2, …], … }
 router.post('/create', authenticate, async (req, res) => {
@@ -39,21 +38,7 @@ router.post('/create', authenticate, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-/*
-// GET /groups/:gid
-router.get('/:gid', authenticate, async (req, res) => {
-  try {
-    const doc = await db.collection('groups').doc(req.params.gid).get();
-    if (!doc.exists) {
-      return res.status(404).json({ error: 'Group not found' });
-    }
-    res.json({ id: doc.id, ...doc.data() });
-  } catch (err) {
-    console.error('GET /groups/:gid failed:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-*/
+
 // PUT /groups/:gid
 // Body: { name?, description?, members?, … }
 router.put('/:gid', authenticate, async (req, res) => {
@@ -110,6 +95,39 @@ router.get('/owner', authenticate, async (req, res) => {
     res.json({ groups });
   } catch (err) {
     console.error('GET /groups/owner failed:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+router.put('/:id', authenticate, async (req, res) => {
+  const db   = req.app.locals.db;
+  const id   = req.params.id;
+  const data = req.body;
+
+  const groupRef = db.collection('groups').doc(id);
+  
+  try {
+    const snap = await groupRef.get();
+    if (!snap.exists) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    const group = snap.data();
+    // Ensure only owner can update:
+    if (group.owner !== req.user.uid) {
+      return res.status(403).json({ error: 'Not authorized to edit this group' });
+    }
+
+    // Merge the incoming fields (name, description, etc.)
+    await groupRef.update({
+      ...data,
+      updatedAt: FieldValue.serverTimestamp()
+    });
+
+    // Return the fresh document
+    const updatedSnap = await groupRef.get();
+    res.json({ id: updatedSnap.id, ...updatedSnap.data() });
+  } catch (err) {
+    console.error('Error updating group:', err);
     res.status(500).json({ error: err.message });
   }
 });
