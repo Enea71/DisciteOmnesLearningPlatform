@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.example.disciteomneslearningplatform.data.model.GroupRepository;
@@ -15,8 +14,6 @@ import com.example.disciteomneslearningplatform.data.model.GroupRepository;
 import API.ApiClient;
 import API.ApiService;
 import API.Group;
-import kotlin.Result;
-
 public class GroupDetailViewModel extends AndroidViewModel {
     private GroupRepository repo;
     private final MutableLiveData<String> groupId = new MutableLiveData<>();
@@ -48,7 +45,6 @@ public class GroupDetailViewModel extends AndroidViewModel {
         });
     }
 
-    /** Call this when you have the ID (e.g. from Fragment args). */
     public void setGroupId(String gid) {
         if (gid != null && !gid.equals(groupId.getValue())) {
             groupId.setValue(gid);

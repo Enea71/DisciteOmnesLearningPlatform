@@ -33,6 +33,7 @@
         android:layout_gravity="bottom|start"
         android:layout_marginStart="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
+        android:src="@drawable/ic_overlay_add_user"
         android:backgroundTint="?attr/buttonColor"
         />
 

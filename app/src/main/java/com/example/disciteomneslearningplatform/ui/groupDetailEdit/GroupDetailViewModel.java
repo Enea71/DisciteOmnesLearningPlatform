@@ -10,6 +10,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.example.disciteomneslearningplatform.data.model.GroupRepository;
 
+import java.util.List;
+
 import API.ApiClient;
 import API.ApiService;
 import API.Group;
@@ -19,6 +21,9 @@ public class GroupDetailViewModel extends AndroidViewModel {
     private final MutableLiveData<Group> _group = new MutableLiveData<>();
     private final MutableLiveData<String> _error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _updateResult = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> _memberUpdateResult = new MutableLiveData<>();
+    public LiveData<Boolean> memberUpdateResult() { return _memberUpdateResult; }
+
 
     public GroupDetailViewModel(@NonNull Application app) {
         super(app);
@@ -73,6 +78,28 @@ public class GroupDetailViewModel extends AndroidViewModel {
             @Override public void onError(String msg) {
                 _error.postValue(msg);
                 _updateResult.postValue(false);
+            }
+        });
+    }
+    public void updateGroupMembers(
+            String bearer,
+            String groupId,
+            List<String> newMembers
+    ) {
+        Group g = _group.getValue();
+        if (g == null) return;
+        g.members = newMembers;
+        groupRepo.updateGroup(bearer, g, new GroupRepository.ResultCallback<Group>() {
+            @Override
+            public void onSuccess(Group data) {
+                // push the new group (with updated members)
+                _group.postValue(data);
+                _memberUpdateResult.postValue(true);
+            }
+            @Override
+            public void onError(String msg) {
+                _error.postValue(msg);
+                _memberUpdateResult.postValue(false);
             }
         });
     }

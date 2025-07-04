@@ -15,17 +15,20 @@ import java.util.List;
 
 public class NameAdapter extends RecyclerView.Adapter<NameAdapter.VH> {
     private final List<String> items = new ArrayList<>();
+    private final int itemLayoutRes;
 
     public void setItems(List<String> names) {
         items.clear();
         if (names != null) items.addAll(names);
         notifyDataSetChanged();
     }
-
+    public NameAdapter(int itemLayoutRes) {
+        this.itemLayoutRes = itemLayoutRes;
+    }
     @NonNull @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_member, parent, false);
+                .inflate(itemLayoutRes, parent, false);
         return new VH(v);
     }
 

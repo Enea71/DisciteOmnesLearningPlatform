@@ -13,10 +13,7 @@
             android:id="@+id/nav_groups"
             android:icon="@drawable/ic_menu_groups"
             android:title="@string/menu_groups" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
+
         <item
             android:id="@+id/nav_settings"
             android:title="@string/menu_settings"

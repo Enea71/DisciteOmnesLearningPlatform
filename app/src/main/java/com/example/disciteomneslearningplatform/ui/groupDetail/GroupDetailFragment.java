@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.disciteomneslearningplatform.R;
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.example.disciteomneslearningplatform.data.model.NameAdapter;
 import com.example.disciteomneslearningplatform.databinding.FragmentGroupDetailBinding;
@@ -47,11 +48,11 @@ public class GroupDetailFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // RecyclerView + adapter
-        NameAdapter adapter = new NameAdapter();
+        NameAdapter adapter = new NameAdapter(R.layout.item_member);
         binding.rvMembers.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvMembers.setAdapter(adapter);
 
-        // Prepare AuthRepository (to get the bearer token)
+        // Prepare AuthRepository
         ApiService api = ApiClient.getApiClient().create(ApiService.class);
         repo = AuthRepository.getInstance(api, requireContext());
 
@@ -70,7 +71,7 @@ public class GroupDetailFragment extends Fragment {
             binding.tvGroupName.setText(group.name);
             binding.tvGroupDescription.setText(group.description);
 
-            // Call your helper instead of inlining:
+            // Call Members
             loadMemberNames(group.members, adapter, repo);
 
         });
@@ -127,5 +128,6 @@ public class GroupDetailFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        binding=null;
     }
 }

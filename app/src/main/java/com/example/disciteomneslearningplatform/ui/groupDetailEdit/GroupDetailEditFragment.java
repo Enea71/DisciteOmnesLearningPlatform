@@ -12,9 +12,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.disciteomneslearningplatform.R;
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
 import com.example.disciteomneslearningplatform.data.model.NameAdapter;
 import com.example.disciteomneslearningplatform.databinding.FragmentGroupEditBinding;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import API.ApiClient;
 import API.ApiService;
+import API.Group;
 
 public class GroupDetailEditFragment extends Fragment {
 
@@ -30,6 +35,7 @@ public class GroupDetailEditFragment extends Fragment {
     private GroupDetailViewModel vm;
     private String bearer;
     private String groupId;
+    AuthRepository repo;
 
     @Nullable
     @Override
@@ -45,15 +51,22 @@ public class GroupDetailEditFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        NameAdapter adapter = new NameAdapter();
+        NameAdapter adapter = new NameAdapter(R.layout.item_member_edit);
         binding.rvMembers.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvMembers.setAdapter(adapter);
 
         // Prepare AuthRepository & bearer token
         ApiService api = ApiClient.getApiClient().create(ApiService.class);
-        AuthRepository repo = AuthRepository.getInstance(api, requireContext());
+        repo = AuthRepository.getInstance(api, requireContext());
         bearer = "Bearer " + repo.getIdToken();
 
+        // Button from activity main
+        FloatingActionButton addFab = requireActivity().findViewById(R.id.leftButton);
+
+        // Handle clicks
+        addFab.setOnClickListener(v -> {
+            showAddMemberDialog();
+        });
         // ViewModel
         vm = new ViewModelProvider(this).get(GroupDetailViewModel.class);
 
@@ -79,6 +92,14 @@ public class GroupDetailEditFragment extends Fragment {
         vm.error().observe(getViewLifecycleOwner(), err ->
                 Toast.makeText(requireContext(), "Error: " + err, Toast.LENGTH_LONG).show()
         );
+
+        vm.memberUpdateResult().observe(getViewLifecycleOwner(), added -> {
+            if (Boolean.TRUE.equals(added)) {
+                Toast.makeText(requireContext(), "Member added!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Failed to add member", Toast.LENGTH_LONG).show();
+            }
+        });
 
         // Save title
         binding.btnSaveTitle.setOnClickListener(v -> {
@@ -127,6 +148,57 @@ public class GroupDetailEditFragment extends Fragment {
                 }
             });
         }
+    }
+    private void showAddMemberDialog() {
+        TextInputEditText input = new TextInputEditText(requireContext());
+        input.setHint("Enter username to add");
+
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Add Member")
+                .setView(input)
+                .setPositiveButton("Add", (dlg, which) -> {
+                    String username = input.getText().toString().trim();
+                    if (!username.isEmpty()) {
+                        lookupAndAddMember(username);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    private void lookupAndAddMember(String username) {
+        repo.getUidByUsername(username, new AuthRepository.ResultCallback<String>() {
+            @Override
+            public void onSuccess(String uid) {
+                // Now that we have the UID, append it to the group
+                addMemberToGroup(uid);
+            }
+            @Override
+            public void onError(String errorMsg) {
+                Toast.makeText(requireContext(),
+                        "Couldn’t find user \"" + username + "\": " + errorMsg,
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+    private void addMemberToGroup(String newUid) {
+        Group current = vm.group().getValue();
+        if (current == null) return;
+
+        // Avoid duplicates
+        if (current.members.contains(newUid)) {
+            Toast.makeText(requireContext(),
+                    "User is already a member", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<String> updated = new ArrayList<>(current.members);
+        updated.add(newUid);
+
+        vm.updateGroupMembers(
+                "Bearer " + repo.getIdToken(),
+                current.id,
+                updated
+        );
     }
     @Override
     public void onDestroyView() {

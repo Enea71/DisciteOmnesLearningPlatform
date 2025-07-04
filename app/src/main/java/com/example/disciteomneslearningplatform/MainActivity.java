@@ -63,15 +63,13 @@ public class MainActivity extends AppCompatActivity {
         // menu should be considered as top level destinations.
         // adds the four lines
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_groups, R.id.nav_slideshow,R.id.nav_settings)
+                R.id.nav_home, R.id.nav_groups, R.id.nav_settings)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         // Set up UI
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-        // Hide FABs on Settings menu
-        hideFab(navController);
         // Observer for username
         repo.getUsernameLiveData().observe(this, username -> {
             View header = navigationView.getHeaderView(0);
@@ -80,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
             tvUsername.setText(username);
             tvEmail.setText(repo.getEmail());
         });
+        showFabUpdate(navController);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -92,16 +91,6 @@ public class MainActivity extends AppCompatActivity {
             doLogout();
             return true;
         }
-        if(item.getItemId() == R.id.notifications) {
-            View overlay = getLayoutInflater()
-                    .inflate(R.layout.notifications, null);
-            AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setView(overlay)
-                    .setCancelable(true)
-                    .create();
-            return true;
-
-            }
         return super.onOptionsItemSelected(item);
     }
     public void doLogout(){
@@ -201,20 +190,26 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         });
-    }
-    private void hideFab(NavController navController){
+    } private void showFabUpdate(NavController navController){
+        FloatingActionButton leftFab = findViewById(R.id.leftButton);
         FloatingActionButton rightFab = findViewById(R.id.rightButton);
-        FloatingActionButton leftFab  = findViewById(R.id.leftButton);
 
         navController.addOnDestinationChangedListener((controller, destination, args) -> {
+            boolean onEdit = destination.getId() == R.id.groupDetailEditFragment;
             boolean onSettings = destination.getId() == R.id.nav_settings;
-            if (onSettings) {
+            if (onEdit) {
+                leftFab.show();
                 rightFab.hide();
-                leftFab .hide();
-            } else {
-                rightFab.show();
-                leftFab .show();
             }
+            else if(onSettings){
+                leftFab.hide();
+                rightFab.hide();
+            }
+            else {
+                leftFab.hide();
+                rightFab.show();
+            }
+
         });
     }
 }
