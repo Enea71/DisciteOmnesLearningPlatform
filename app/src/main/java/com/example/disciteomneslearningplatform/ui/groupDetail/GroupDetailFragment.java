@@ -1,6 +1,7 @@
 package com.example.disciteomneslearningplatform.ui.groupDetail;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.disciteomneslearningplatform.data.model.AuthRepository;
-//import com.example.disciteomneslearningplatform.data.model.NameAdapter;
+import com.example.disciteomneslearningplatform.data.model.NameAdapter;
 import com.example.disciteomneslearningplatform.databinding.FragmentGroupDetailBinding;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,13 +25,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import API.ApiClient;
 import API.ApiService;
-import API.Group;
 
 public class GroupDetailFragment extends Fragment {
 
     private FragmentGroupDetailBinding binding;
     private GroupDetailViewModel vm;
-    private AuthRepository authRepo;
+    private AuthRepository repo;
 
     @Nullable
     @Override
@@ -44,15 +45,15 @@ public class GroupDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-/*
+
         // RecyclerView + adapter
         NameAdapter adapter = new NameAdapter();
         binding.rvMembers.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvMembers.setAdapter(adapter);
-*/
+
         // Prepare AuthRepository (to get the bearer token)
         ApiService api = ApiClient.getApiClient().create(ApiService.class);
-        authRepo = AuthRepository.getInstance(api, requireContext());
+        repo = AuthRepository.getInstance(api, requireContext());
 
         // Obtain AndroidViewModel
         vm = new ViewModelProvider(this)
@@ -68,15 +69,42 @@ public class GroupDetailFragment extends Fragment {
             binding.tvGroupDescription.setText(groupDescription);
 
             // Get all ids
-            List<String> ids = group.membersID;
+            List<String> ids = group.members;
             if (ids == null || ids.isEmpty()) {
-                //adapter.setItems(Collections.emptyList());
+                Log.d("IDs","Ids Are empty");
+                adapter.setItems(Collections.emptyList());
                 return;
             }
             List<String> names = new ArrayList<>(Collections.nCopies(ids.size(), null));
             AtomicInteger remaining = new AtomicInteger(ids.size());
+            // 4) Kick off one network call per ID
+            for (int i = 0; i < ids.size(); i++) {
+                final int index = i;
+                String memberId = ids.get(i);
+                Log.d("got ID", "got id in for loop"+ memberId);
+                repo.getUsernameByUid(memberId, new AuthRepository.ResultCallback<String>() {
+                    @Override
+                    public void onSuccess(String username) {
+                        Log.d("Username","User's name is:" + username);
+                        names.set(index, username);
+                        if (remaining.decrementAndGet() == 0) {
+                            adapter.setItems(names);
+                            Log.d("Set","Set names complete");
+                        }
+                    }
+                    @Override
+                    public void onError(String errorMsg) {
+                        names.set(index, "Error");
+                        Log.e("getUsernameByUid",
+                                "Failed for uid=" + memberId + ": " + errorMsg);
 
-           // adapter.setItems(group.membersID);
+                        if (remaining.decrementAndGet() == 0) {
+                            adapter.setItems(names);
+                        }
+                    }
+                });
+            }
+
         });
         vm.error().observe(getViewLifecycleOwner(), errMsg -> {
             // Error path
@@ -88,7 +116,7 @@ public class GroupDetailFragment extends Fragment {
 
         // Kick off load with the UID from bundle
         String groupId = requireArguments().getString("groupId");
-        String bearer = "Bearer " + authRepo.getIdToken();
+        String bearer = "Bearer " + repo.getIdToken();
         vm.loadGroup(bearer, groupId);
     }
 

@@ -9,7 +9,6 @@ public class Group {
     @SerializedName("name")            public String name;
     @SerializedName("description")     public String description;
     @SerializedName("members")         public List<String> members;
-    @SerializedName("membersID")       public List<String> membersID;
     @SerializedName("creator")         public  String creator;
 
     @SerializedName("tasks")       public List<String> tasks;

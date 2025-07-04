@@ -184,7 +184,7 @@ router.put('/:uid/username',authenticate, checkUsername,
  * → Returns the username
  */
 
-router.get('/getusername/:uid', async (req, res) => {
+router.get('/:uid/getusername', async (req, res) => {
   const { uid } = req.params;
 
   try {
